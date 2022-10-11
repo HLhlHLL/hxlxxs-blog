@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, inject } from 'vue'
+import { onMounted } from 'vue'
 import { gsap } from 'gsap'
 import Navigation from '@/components//Navigation/index.vue'
 import SiteOverview from '@/components/SiteOverview/index.vue'

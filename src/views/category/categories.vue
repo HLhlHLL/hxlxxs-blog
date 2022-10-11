@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue'
 import CatalogTree from '@/components/CatalogTree/index.vue'
-import { useRoute, useRouter } from 'vue-router'
 import { ICategory } from '@/types'
+import { formatCategoryTree } from '@/utils/shared'
 
 const categories = ref<ICategory[]>([])
 
 const global: any = inject('global')
-const route = useRoute()
-const router = useRouter()
 
 const getCategories = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/categories')
-  categories.value = data.results
+  categories.value = formatCategoryTree(data.results.slice(0))
 }
 onMounted(() => {
   getCategories()

@@ -1,4 +1,4 @@
-import { IComment } from '@/types'
+import { ICategory, IComment, ITag } from '@/types'
 
 export const timeAgoFn = (timestamp: number) => {
   if (timestamp < 0)
@@ -26,13 +26,13 @@ export const timeAgoFn = (timestamp: number) => {
   }
 }
 
-export const formatCommentTree = (com: IComment[]) => {
+export const formatCommentTree = (comment: IComment[]) => {
   // 格式化发布时间
-  com.forEach((c) => {
+  comment.forEach((c) => {
     const createdTime = new Date(c.createdAt as string).getTime()
     c.timeAgo = timeAgoFn(new Date().getTime() - createdTime)
   })
-  const res = com.filter((c) => !c.pid)
+  const res = comment.filter((c) => !c.pid)
   // 主评论按时间升序排列，子评论不变
   res.sort((pre: IComment, next: IComment) => {
     return (
@@ -41,11 +41,45 @@ export const formatCommentTree = (com: IComment[]) => {
   })
   // 将子评论插入对应主评论
   res.forEach((r) => {
-    com.forEach((c) => {
+    comment.forEach((c) => {
       if (r.comid === c.pid) {
         r.subComments?.push(c)
       }
     })
   })
   return res
+}
+
+export const formatCategoryTree = (category: ICategory[]) => {
+  const parent = category.filter((c) => !c.pid)
+  const children = category.filter((c) => c.pid)
+
+  function dataToTree(parent: ICategory[], children: ICategory[]) {
+    parent.forEach((p) => {
+      children.forEach((c) => {
+        if (p.cid === c.pid) {
+          const _children = children.filter((_c) => c.pid !== _c.pid)
+          dataToTree([c], _children)
+          if (p.subCategory) {
+            p.subCategory.push(c)
+          } else {
+            p.subCategory = [c]
+          }
+        }
+      })
+    })
+  }
+
+  dataToTree(parent, children)
+  return parent
+}
+
+export const mergeCategories = (
+  baseCategory: ICategory[],
+  newCategory: ICategory[]
+) => {
+  const res = newCategory.filter((nc) => {
+    return baseCategory.every((bc) => bc.cid !== nc.cid)
+  })
+  return [...baseCategory, ...res]
 }

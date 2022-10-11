@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue'
+import { inject, onBeforeMount, ref } from 'vue'
 import MdEditor from 'md-editor-v3'
 import CategorySelector, {
   ICategorySelector
@@ -8,6 +8,7 @@ import TagGroup, { ITagGroup } from '@/components/TagGroup/index.vue'
 import { articleGenerator } from '@/utils/generator'
 import { basicCategories } from '@/mock/categories'
 import { ICategory } from '@/types/index'
+import { mergeCategories } from '@/utils/shared'
 
 const global: any = inject('global')
 const title = ref<string>('')
@@ -15,7 +16,7 @@ const content = ref<string>('')
 const abstract = ref<string>('')
 const category = ref<ICategory[]>([])
 const tags = ref<string[]>([])
-const categoryList = reactive<any[]>(basicCategories)
+const categoryList = ref<ICategory[]>([])
 
 const handleValueChange = (value: ICategory[]) => {
   category.value = value
@@ -68,37 +69,52 @@ const handleSubmitNewArticle = async () => {
     category.value,
     tags.value
   )
-  const articleRes = await global.$http.post('/api/1.1/classes/articles', {
-    ...a
-  })
-  console.log('article', articleRes)
+  try {
+    await global.$http.post('/api/1.1/classes/articles', {
+      ...a
+    })
 
-  const contentArticleRes = await global.$http.post(
-    '/api/1.1/classes/contentArticle',
-    {
+    await global.$http.post('/api/1.1/classes/contentArticle', {
       ...contentArticle
-    }
-  )
-  console.log('contentArticle', contentArticleRes)
+    })
 
-  const categoryRes = await global.$http.post('/api/1.1/classes/categories', {
-    ...c
-  })
-  console.log('category', categoryRes)
+    await global.$http.post('/api/1.1/classes/categories', {
+      ...c
+    })
 
-  const operation = t.map((item) => ({
-    method: 'POST',
-    path: '/1.1/classes/tags',
-    body: {
-      ...item
-    }
-  }))
+    const operation = t.map((item) => ({
+      method: 'POST',
+      path: '/1.1/classes/tags',
+      body: {
+        ...item
+      }
+    }))
 
-  const tagRes = await global.$http.post('/api/1.1/batch', {
-    requests: operation
-  })
-  console.log('tag', tagRes)
+    await global.$http.post('/api/1.1/batch', {
+      requests: operation
+    })
+
+    global.$message({
+      message: 'yes，发布成功！！',
+      type: 'success'
+    })
+  } catch (error) {
+    global.$message({
+      message: '等等，好像出了点小问题...'
+    })
+  } finally {
+    handleResetArticle()
+  }
 }
+
+const getCategoryList = async () => {
+  const { data } = await global.$http.get('/api/1.1/classes/categories')
+  categoryList.value = mergeCategories(basicCategories, data.results)
+}
+
+onBeforeMount(() => {
+  getCategoryList()
+})
 </script>
 
 <template>

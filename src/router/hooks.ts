@@ -1,12 +1,20 @@
-import {RouteLocationNormalized, NavigationGuardNext} from 'vue-router'
-import {pathList} from '@/components/Navigation/data'
+import { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 
 export default {
-  'if-route-active': (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    // 判断将要访问路径是否在导航中，不在则取消导航选定状态
-    // if(!pathList.some(path => to.path.includes(path.pathName))) {
-    //   pathList.forEach(path => path.active = false)
-    // }
-    next()
+  'if-authorized': (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    if (to.name === 'newarticle') {
+      const token = sessionStorage.getItem('sessionToken')
+      if (!token) {
+        next('/home')
+      } else {
+        next()
+      }
+    } else {
+      next()
+    }
   }
 }

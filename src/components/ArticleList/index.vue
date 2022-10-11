@@ -212,6 +212,7 @@ onUpdated(() => {
       border-bottom: 1px dashed #ccc;
       line-height: 2;
       cursor: pointer;
+      animation: showup 0.5s linear;
       .item-meta {
         font-size: 14px;
         color: #999;
@@ -230,9 +231,19 @@ onUpdated(() => {
         height: 6px;
         background-color: #bbb;
         border-radius: 50%;
+        transition: all 0.3s linear;
       }
       &:hover::before {
         background-color: #555;
+      }
+    }
+
+    @keyframes showup {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
   }

@@ -7,7 +7,10 @@ class HttpRequest {
     [index: string]: boolean
   }
   constructor() {
-    this.baseURL = ''
+    this.baseURL =
+      import.meta.env.MODE === 'production'
+        ? import.meta.env.VITE_APP_BASE_API
+        : ''
     this.timeout = 3000
     // 正在进行请求的请求列表
     this.queue = {}

@@ -1,9 +1,9 @@
-import {reactive} from 'vue'
+import { reactive } from 'vue'
 
 export type NavPath = {
-  pathName: string,
-  text: string,
-  pathIcon: string,
+  pathName: string
+  text: string
+  pathIcon: string
   active: boolean
 }
 
@@ -49,5 +49,5 @@ export const pathList = reactive<NavPath[]>([
     text: '搜索',
     pathIcon: 'search',
     active: false
-  },
+  }
 ])
