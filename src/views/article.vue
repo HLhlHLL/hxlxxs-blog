@@ -1,0 +1,224 @@
+<script setup lang="ts">
+import { inject, onBeforeMount, reactive, ref } from 'vue'
+import Article from '@/components/Article/index.vue'
+import Comments from '@/components/Comments/index.vue'
+import { useRoute, useRouter } from 'vue-router'
+import { IComment, ITag } from '@/types'
+import { formatCommentTree } from '@/utils/shared'
+
+const route = useRoute()
+const router = useRouter()
+const global: any = inject('global')
+const compData = reactive<any>({
+  article: {}
+})
+const comment = ref<IComment[]>([])
+const loading = ref<boolean>(true)
+
+const handleClickTag = (tag: ITag) => {
+  router.push({
+    name: 'tag_articles',
+    params: {
+      tag: tag.tagName,
+      tid: tag.tid
+    }
+  })
+}
+
+const getArticleInfo = async () => {
+  const aid = route.params.aid
+  const { data } = await global.$http.get(
+    `/api/1.1/classes/contentArticle?where={"aid":"${aid}"}`
+  )
+  compData.article = data.results[0]
+  comment.value = formatCommentTree(data.results[0].comment.slice(0))
+  loading.value = false
+}
+
+onBeforeMount(() => {
+  getArticleInfo()
+})
+</script>
+
+<template>
+  <div class="article animate__animated animate__fadeIn">
+    <Article :article="compData.article" :loading="loading" />
+  </div>
+  <div class="divider">
+    <div class="div-mark"></div>
+  </div>
+  <div class="tags">
+    <strong>Tags:</strong>
+    <span
+      class="tag"
+      v-for="tag in compData.article.tags"
+      :key="tag.tid"
+      @click="handleClickTag(tag)"
+    >
+      # {{ tag.tagName }}
+    </span>
+  </div>
+  <div class="related-articles">
+    <div class="text">相关文章</div>
+    <ul>
+      <li class="title">
+        <span class="link">平凡的世界</span>
+      </li>
+    </ul>
+  </div>
+  <div class="article-nav">
+    <div class="pre-article">
+      <a href="javascript:;">
+        <i class="iconfont icon-left"></i>
+        previous
+      </a>
+    </div>
+    <div class="next-article">
+      <a href="javascript:;">
+        next
+        <i class="iconfont icon-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="copyright">
+    <ul>
+      <li class="copyright-author">
+        <strong>本文作者:</strong>
+        hxlxx
+      </li>
+      <li class="copyright-link">
+        <strong>本文链接:</strong>
+        <a href="javascript:;"></a>
+      </li>
+      <li class="copyright-license">
+        <strong>版权声明:</strong>
+        本博客所有文章除特别声明外，均采用
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          BY-NC-SA
+        </a>
+        许可协议。转载请注明出处！
+      </li>
+    </ul>
+  </div>
+  <div class="followme">
+    <span>联系我</span>
+    <div class="social-list">
+      <div class="social-item">
+        <i class="iconfont icon-QQ"></i>
+        QQ
+      </div>
+      <div class="social-item">
+        <i class="iconfont icon-weixin"></i>
+        WeChat
+      </div>
+    </div>
+  </div>
+  <Comments :comment="comment" :article="compData.article" />
+</template>
+
+<style scoped lang="scss">
+.article {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.divider {
+  width: 100%;
+  height: 4px;
+  margin: 20px 0 60px;
+  .div-mark {
+    width: 100%;
+    height: 4px;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      #ddd,
+      #ddd 4px,
+      transparent 4px,
+      transparent 8px
+    );
+  }
+}
+.tags {
+  margin-bottom: 40px;
+  strong {
+    margin-right: 20px;
+  }
+  .tag {
+    margin-right: 20px;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #555;
+    cursor: pointer;
+    &:hover {
+      color: #999;
+      border-color: #999;
+    }
+  }
+}
+.related-articles {
+  .title {
+    line-height: 2;
+    font-size: 14px;
+    .link {
+      color: #555;
+      border-bottom: 1px solid #555;
+      cursor: pointer;
+      &:hover {
+        color: #999;
+        border-color: #999;
+      }
+    }
+  }
+}
+.copyright {
+  margin-top: 40px;
+  background-color: #f5f5f5;
+  border-left: 4px solid #555;
+  ul {
+    padding: 20px;
+    margin: 0;
+    list-style: none;
+    li {
+      line-height: 2;
+      strong {
+        margin-right: 15px;
+      }
+    }
+  }
+}
+.followme {
+  text-align: center;
+  line-height: 1.5;
+  padding: 15px;
+  margin-top: 40px;
+  border-left: 4px solid #555;
+  background-color: #f5f5f5;
+  .social-list {
+    display: flex;
+    justify-content: center;
+    .social-item {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      cursor: pointer;
+      .iconfont {
+        font-size: 28px;
+      }
+    }
+    .social-item:hover {
+      color: #222;
+    }
+  }
+}
+.article-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 40px 0;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  a {
+    border: none;
+  }
+}
+</style>
