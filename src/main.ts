@@ -12,13 +12,17 @@ import http from '@/utils/request'
 import message from '@/components/Message/index'
 import '@/components/Message/index'
 import cusPlugin from '@/plugin/index'
+import { createPinia } from 'pinia'
 
 const app = createApp(App)
+const pinia = createPinia()
+
 app.provide('global', {
   $http: http,
   $message: message
 })
 app.use(cusPlugin)
 app.use(router)
+app.use(pinia)
 // .use(ElementPlus)
 app.mount('#app')

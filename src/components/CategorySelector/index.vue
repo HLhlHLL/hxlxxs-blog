@@ -10,7 +10,7 @@ export interface ICategorySelector {
 
 type PropsData = {
   placeholder: string
-  data: ICategory[]
+  categories: ICategory[]
 }
 
 const emit = defineEmits(['handleValueChange'])
@@ -41,10 +41,11 @@ const fold = ref<boolean>(true)
 
 const handleSelectItem = (item: ICategory) => {
   level1IptValue.value = item.categoryName
+  item.isExist = true
   value.value[0] = item
   emit('handleValueChange', value.value)
   gsap.to('.selector', {
-    top: -60,
+    top: -20,
     opacity: 0,
     height: 0,
     duration: 0.5,
@@ -65,7 +66,7 @@ const handleOpenOrCloseSelector = () => {
     })
   } else {
     gsap.to('.selector', {
-      top: -60,
+      top: -20,
       opacity: 0,
       height: 0,
       duration: 0.5,
@@ -83,11 +84,11 @@ const restSelector = () => {
 document.addEventListener('click', function (e) {
   if (
     (e.target as HTMLElement).className !== 'selector-item' &&
-    (e.target as HTMLElement).className !== 'iconfont icon-next' &&
+    (e.target as HTMLElement).className !== 'iconfont icon-next category' &&
     !fold.value
   ) {
     gsap.to('.selector', {
-      top: -60,
+      top: -20,
       opacity: 0,
       height: 0,
       duration: 0.5,
@@ -120,13 +121,13 @@ defineExpose({
           :class="['selector-button', fold ? '' : 'rotating']"
           @click="handleOpenOrCloseSelector"
         >
-          <i class="iconfont icon-next"></i>
+          <i class="iconfont icon-next category"></i>
         </div>
       </div>
       <ul class="selector">
         <li
           class="selector-item"
-          v-for="item in data"
+          v-for="item in props.categories"
           :key="item.cid"
           @click="handleSelectItem(item)"
         >

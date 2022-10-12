@@ -1,6 +1,7 @@
 export interface ITag {
   tagName: string
   tid: string
+  isExist?: boolean
 }
 
 export interface ICategory {
@@ -8,6 +9,7 @@ export interface ICategory {
   cid: string
   pid?: string
   subCategory?: ICategory[]
+  isExist?: boolean
 }
 
 export interface IArticleMeta {

@@ -1,4 +1,4 @@
-import { ICategory, IComment, ITag } from '@/types'
+import { ICategory, IComment } from '@/types'
 
 export const timeAgoFn = (timestamp: number) => {
   if (timestamp < 0)
@@ -28,10 +28,10 @@ export const timeAgoFn = (timestamp: number) => {
 
 export const formatCommentTree = (comment: IComment[]) => {
   // 格式化发布时间
-  comment.forEach((c) => {
-    const createdTime = new Date(c.createdAt as string).getTime()
-    c.timeAgo = timeAgoFn(new Date().getTime() - createdTime)
-  })
+  // comment.forEach((c) => {
+  //   const createdTime = new Date(c.createdAt as string).getTime()
+  //   c.timeAgo = timeAgoFn(new Date().getTime() - createdTime)
+  // })
   const res = comment.filter((c) => !c.pid)
   // 主评论按时间升序排列，子评论不变
   res.sort((pre: IComment, next: IComment) => {

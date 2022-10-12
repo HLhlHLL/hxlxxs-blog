@@ -11,7 +11,7 @@ import {
 interface IArticleInformation {
   article: IArticle
   tags: ITag[]
-  category: ICategory
+  categories: ICategory[]
   contentArticle: IContentArticle
 }
 
@@ -20,29 +20,20 @@ export const articleGenerator = (
   abstract: string,
   content: string,
   categories: ICategory[],
-  tag: string[]
+  tags: ITag[]
 ): IArticleInformation => {
-  // tags
-  const tags: ITag[] = tag.map((t) => ({
-    tid: uuidv4(),
-    tagName: t
-  }))
+  // // tags
+  tags = tags.filter((t) => !t.isExist)
 
   // category
   let category = {} as ICategory
   if (categories.length === 1) {
-    category = {
-      pid: undefined,
-      cid: categories[0].cid,
-      categoryName: categories[0].categoryName
-    }
+    category = categories[0]
   } else if (categories.length === 2) {
-    category = {
-      pid: categories[1].pid,
-      cid: categories[1].cid,
-      categoryName: categories[1].categoryName
-    }
+    category = categories[1]
   }
+
+  categories = categories.filter((c) => !c.isExist)
 
   // meta
   const meta: IArticleMeta = {
@@ -75,7 +66,7 @@ export const articleGenerator = (
 
   return {
     tags,
-    category,
+    categories,
     article,
     contentArticle
   }

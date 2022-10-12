@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { inject, onMounted, onUpdated, reactive, ref } from 'vue'
+import { inject, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
 import Pagination from '@/components/Pagination/index.vue'
-import gsap from 'gsap'
+import { useArticlesStore } from '@/store/articles'
 
 type PropsData = {
   payload?: string
@@ -11,6 +11,7 @@ type PropsData = {
 
 const route = useRoute()
 const router = useRouter()
+const articleStore = useArticlesStore()
 const props = defineProps<PropsData>()
 const global: any = inject('global')
 const currentYear = ref<number>(new Date().getFullYear())
@@ -23,19 +24,22 @@ const detail = reactive({
 })
 
 const pagination = reactive({
-  total: articles.value.length,
+  total: 0,
   size: 5,
   range: 3,
   currentPage: 1
 })
 const handleGetCurrentPage = (page: number) => {
   pagination.currentPage = page
+  getArticleList()
 }
 const handleNavigateToArticle = (article: IArticle) => {
+  const index = articleStore.articleList.findIndex((a) => a.aid === article.aid)
   router.push({
     name: 'article',
     params: {
-      aid: article.aid
+      aid: article.aid,
+      index
     }
   })
 }
@@ -49,24 +53,7 @@ const handleNextYear = () => {
   getArticleList()
 }
 
-// 列表出现动画
-const handleListItemAnimation = () => {
-  const archiveItemEls = [].slice.call(
-    document.querySelectorAll('.list-item .item-content'),
-    0
-  )
-  archiveItemEls.forEach((item, index) => {
-    gsap.from(item, {
-      x: 100,
-      duration: 0.6 * index,
-      opacity: 0,
-      ease: 'power4.out'
-    })
-  })
-}
-
-// 请求列表数据
-const getArticleList = async () => {
+const getArticleCount = async () => {
   if (detail.tid) {
     const { data } = await global.$http.get(
       `/api/1.1/classes/articles?where={"$and":[{"tid": "${
@@ -75,7 +62,47 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}`
+      }-01-01T00:00:00.000Z"}}}]}&limit=0&count=1`
+    )
+    pagination.total = data.count
+  } else if (detail.cid) {
+    const { data } = await global.$http.get(
+      `/api/1.1/classes/articles?where={"$and":[{"cid": "${
+        detail.cid
+      }"},{"createdAt":{"$gte":{"__type":"Date","iso":"${
+        currentYear.value
+      }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
+        currentYear.value + 1
+      }-01-01T00:00:00.000Z"}}}]}&limit=0&count=1`
+    )
+    pagination.total = data.count
+  } else {
+    const { data } = await global.$http.get(
+      `/api/1.1/classes/articles?where={"createdAt":{"$gte":{"__type":"Date","iso":"${
+        currentYear.value
+      }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
+        currentYear.value + 1
+      }-01-01T00:00:00.000Z"}}}&limit=0&count=1`
+    )
+    pagination.total = data.count
+  }
+}
+
+// 请求分页数据
+const getArticleList = async () => {
+  const skip =
+    pagination.currentPage > 1
+      ? (pagination.currentPage - 1) * pagination.size
+      : 0
+  if (detail.tid) {
+    const { data } = await global.$http.get(
+      `/api/1.1/classes/articles?where={"$and":[{"tid": "${
+        detail.tid
+      }"},{"createdAt":{"$gte":{"__type":"Date","iso":"${
+        currentYear.value
+      }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
+        currentYear.value + 1
+      }-01-01T00:00:00.000Z"}}}]}&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   } else if (detail.cid) {
@@ -86,7 +113,7 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}`
+      }-01-01T00:00:00.000Z"}}}]}&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   } else {
@@ -95,7 +122,7 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}`
+      }-01-01T00:00:00.000Z"}}}&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   }
@@ -103,10 +130,7 @@ const getArticleList = async () => {
 
 onMounted(() => {
   getArticleList()
-})
-
-onUpdated(() => {
-  handleListItemAnimation()
+  getArticleCount()
 })
 </script>
 
@@ -134,7 +158,10 @@ onUpdated(() => {
       </div>
       <div
         class="list-item"
-        v-for="article in articles"
+        :style="{
+          animationDelay: `${index * 0.1}s`
+        }"
+        v-for="(article, index) in articles"
         :key="article.aid"
         @click="handleNavigateToArticle(article)"
       >
@@ -149,9 +176,9 @@ onUpdated(() => {
     <div class="footer">
       <Pagination
         button-color="#222"
-        v-if="articles.length > 5"
+        v-if="pagination.total > 5"
         :pagination="pagination"
-        @get-current-page="handleGetCurrentPage"
+        @getCurrentPage="handleGetCurrentPage"
       />
     </div>
   </div>
@@ -207,12 +234,14 @@ onUpdated(() => {
     }
     .list-item {
       position: relative;
+      left: 100px;
       margin-top: 20px;
       padding-left: 20px;
       border-bottom: 1px dashed #ccc;
       line-height: 2;
+      opacity: 0;
       cursor: pointer;
-      animation: showup 0.5s linear;
+      animation: showup 0.5s ease-out forwards;
       .item-meta {
         font-size: 14px;
         color: #999;
@@ -240,9 +269,11 @@ onUpdated(() => {
 
     @keyframes showup {
       from {
+        left: 100px;
         opacity: 0;
       }
       to {
+        left: -1px;
         opacity: 1;
       }
     }

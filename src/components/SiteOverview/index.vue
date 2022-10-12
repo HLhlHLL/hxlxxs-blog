@@ -2,21 +2,25 @@
 import { inject, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import gsap from 'gsap'
+import { useUser } from '@/store/user'
 
 const global: any = inject('global')
 
 const router = useRouter()
+const userStore = useUser()
 const archivesCount = ref<number>()
 const tagsCount = ref<number>()
 const categoriesCount = ref<number>()
 const loginRef = ref<HTMLElement | null>(null)
 const username = ref<string>('')
 const password = ref<string>('')
+const ifLogged = ref<boolean>(false)
 
 let fold = true
 const handleAddArticle = () => {
-  if (sessionStorage.getItem('sessionToken')) {
-    router.push({ name: 'newarticle' })
+  const token = sessionStorage.getItem('sessionToken')
+  if (token && token === userStore.sessionToken) {
+    router.push({ name: 'manage' })
   } else {
     if (fold) {
       gsap.to('.login', {
@@ -52,17 +56,17 @@ const handleLogin = async () => {
         password: password.value
       })
       if (data.sessionToken) {
+        handleAddArticle()
+        ifLogged.value = true
+        userStore.sessionToken = data.sessionToken
         sessionStorage.setItem('sessionToken', data.sessionToken)
         username.value = ''
         password.value = ''
-        handleAddArticle()
         global.$message({
-          message: 'お帰り！！',
+          message: '欢迎欢迎，热烈欢迎！！',
           type: 'success'
         })
-        router.push({
-          name: 'newarticle'
-        })
+        router.push({ name: 'manage' })
       }
     } catch (error) {
       global.$message({
@@ -71,6 +75,12 @@ const handleLogin = async () => {
       })
     }
   }
+}
+
+const handleLogout = () => {
+  ifLogged.value = false
+  sessionStorage.removeItem('sessionToken')
+  router.push({ name: 'home' })
 }
 
 // 分类数量统计
@@ -115,6 +125,11 @@ onBeforeMount(() => {
       </form>
     </div>
     <div class="site-box">
+      <i
+        class="iconfont icon-log-out"
+        v-if="ifLogged"
+        @click="handleLogout"
+      ></i>
       <div class="avatar" @click="handleAddArticle">
         <img src="@/assets/images/avatar.jpg" alt="hxlxx" />
       </div>
@@ -195,6 +210,7 @@ onBeforeMount(() => {
     }
   }
   .site-box {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -202,6 +218,16 @@ onBeforeMount(() => {
     padding: 18px 10px;
     background-color: #fff;
     box-sizing: border-box;
+    .icon-log-out {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      &:hover {
+        color: #999;
+      }
+    }
     .avatar {
       width: 120px;
       height: 120px;

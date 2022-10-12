@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, reactive, ref } from 'vue'
+import { inject, onBeforeMount, reactive, ref, watch } from 'vue'
 import Article from '@/components/Article/index.vue'
 import Comments from '@/components/Comments/index.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { IComment, ITag } from '@/types'
+import { IArticle, IComment, ITag } from '@/types'
 import { formatCommentTree } from '@/utils/shared'
+import { useArticlesStore } from '@/store/articles'
 
 const route = useRoute()
 const router = useRouter()
+const articleStore = useArticlesStore()
 const global: any = inject('global')
 const compData = reactive<any>({
   article: {}
 })
 const comment = ref<IComment[]>([])
 const loading = ref<boolean>(true)
+const currentArticleIndex = ref<number>(Number(route.params.index))
+const relatedArticle = ref<IArticle[]>([])
 
 const handleClickTag = (tag: ITag) => {
   router.push({
@@ -25,19 +29,63 @@ const handleClickTag = (tag: ITag) => {
   })
 }
 
+// 跳转到对应索引的文章
+const turnToAnotherArticle = () => {
+  router.replace({
+    name: 'article',
+    params: {
+      aid: articleStore.articleList[currentArticleIndex.value].aid,
+      index: currentArticleIndex.value,
+      objectId: articleStore.articleList[currentArticleIndex.value].objectId
+    }
+  })
+}
+// 跳转到下一篇或上一篇
+const handleChangeArticle = (type: string) => {
+  if (type === 'previous') {
+    --currentArticleIndex.value
+    turnToAnotherArticle()
+  } else if (type === 'next') {
+    ++currentArticleIndex.value
+    turnToAnotherArticle()
+  }
+}
+// 跳转到相关文章
+const handleToRelatedArticle = (rel: IArticle) => {
+  const res = articleStore.articleList.findIndex((a) => a.aid === rel.aid)
+  currentArticleIndex.value = res
+  turnToAnotherArticle()
+}
+
 const getArticleInfo = async () => {
   const aid = route.params.aid
-  const { data } = await global.$http.get(
+  const { data: res1 } = await global.$http.get(
     `/api/1.1/classes/contentArticle?where={"aid":"${aid}"}`
   )
-  compData.article = data.results[0]
-  comment.value = formatCommentTree(data.results[0].comment.slice(0))
+  compData.article = res1.results[0]
+  comment.value = formatCommentTree(res1.results[0].comment.slice(0))
   loading.value = false
+  const { data: res2 } = await global.$http.get(
+    `/api/1.1/classes/articles?where={"cid": "${compData.article.cid}"}?limit=5`
+  )
+  relatedArticle.value = res2.results.filter(
+    (r: any) => r.aid !== compData.article.aid
+  )
 }
 
 onBeforeMount(() => {
   getArticleInfo()
 })
+
+watch(
+  () => route,
+  () => {
+    getArticleInfo()
+  },
+  {
+    deep: true
+  }
+)
 </script>
 
 <template>
@@ -60,24 +108,32 @@ onBeforeMount(() => {
   </div>
   <div class="related-articles">
     <div class="text">相关文章</div>
-    <ul>
-      <li class="title">
-        <span class="link">平凡的世界</span>
+    <ul v-if="relatedArticle.length > 0">
+      <li class="title" v-for="rel in relatedArticle" :key="rel.aid">
+        <span class="link" @click="handleToRelatedArticle(rel)">{{
+          rel.title
+        }}</span>
       </li>
     </ul>
+    <div class="related-blank" v-else>
+      <span>暂无更多相关文章</span>
+    </div>
   </div>
   <div class="article-nav">
-    <div class="pre-article">
-      <a href="javascript:;">
+    <div class="pre-article" v-if="currentArticleIndex >= 1">
+      <span @click="handleChangeArticle('previous')">
         <i class="iconfont icon-left"></i>
-        previous
-      </a>
+        {{ articleStore.articleList[currentArticleIndex - 1].title }}
+      </span>
     </div>
-    <div class="next-article">
-      <a href="javascript:;">
-        next
+    <div
+      class="next-article"
+      v-if="currentArticleIndex < articleStore.articleList.length - 1"
+    >
+      <span @click="handleChangeArticle('next')">
+        {{ articleStore.articleList[currentArticleIndex + 1].title }}
         <i class="iconfont icon-right"></i>
-      </a>
+      </span>
     </div>
   </div>
   <div class="copyright">
@@ -169,6 +225,11 @@ onBeforeMount(() => {
       }
     }
   }
+  .related-blank {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #999;
+  }
 }
 .copyright {
   margin-top: 40px;
@@ -211,14 +272,24 @@ onBeforeMount(() => {
   }
 }
 .article-nav {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
   width: 100%;
   margin: 40px 0;
   padding-top: 10px;
   border-top: 1px solid #eee;
-  a {
-    border: none;
+  .pre-article {
+    position: absolute;
+    left: 0;
+  }
+  .next-article {
+    position: absolute;
+    right: 0;
+  }
+  span {
+    cursor: pointer;
+    &:hover {
+      color: #999;
+    }
   }
 }
 </style>

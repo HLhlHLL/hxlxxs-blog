@@ -19,10 +19,12 @@ class HttpRequest {
   setInterceptors(instance: AxiosInstance, url: string) {
     instance.interceptors.request.use((config: AxiosRequestConfig) => {
       if (url.indexOf('/api') !== -1) {
+        const sessionToken = sessionStorage.getItem('sessionToken') || ''
         config.headers = {
           'X-LC-Key': 'RFBWcqFa7fVJ9aqCgm5LMHgc',
           'X-LC-Id': 'nXKlkQiv7agkND5Hw7SknC3s-gzGzoHsz',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-LC-Session': sessionToken
         }
       }
 
@@ -67,7 +69,7 @@ class HttpRequest {
     return instance(config)
   }
 
-  get(url: string, data: any) {
+  get(url: string, data?: any) {
     return this.request({
       url,
       method: 'GET',

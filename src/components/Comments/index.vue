@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { watch, ref, inject } from 'vue'
+import { ref, inject, watch } from 'vue'
 import MdEditor, { ToolbarNames } from 'md-editor-v3'
 import { commentGenerator } from '@/utils/generator'
 import { IArticle, IComment } from '@/types'
-import { timeAgoFn } from '@/utils/shared'
 import { useRoute } from 'vue-router'
+import { timeAgoFn } from '@/utils/shared'
 
 type PropsData = {
   comment: IComment[]
@@ -15,8 +15,8 @@ const props = defineProps<PropsData>()
 const route = useRoute()
 const global: any = inject('global')
 
-const content = ref<string>('')
 const toolbars = ref<ToolbarNames[]>(['=', 'preview'])
+const content = ref<string>('')
 const comid = ref<string>('')
 const replyContent = ref<string>('')
 const subReplyContent = ref<string>('')
@@ -57,38 +57,49 @@ const handleComment = async (com?: IComment, sub?: IComment) => {
 }
 const updateComment = async (comment: IComment) => {
   // 文章评论
-  if (props.article) {
-    await global.$http.put(
-      `/api/1.1/classes/contentArticle/${props.article.objectId}`,
-      {
-        comment: { __op: 'Add', objects: [comment] }
-      }
-    )
-    await global.$http.put(
-      `/api/1.1/classes/articles/${props.article.objectId}`,
-      {
-        comment: { __op: 'Add', objects: [comment] }
-      }
-    )
-  } else if (!props.article && props.page) {
-    // 关于页评论
-    if (props.page === 'about') {
+  try {
+    if (props.article) {
       await global.$http.put(
-        `/api/1.1/classes/comments/6344220d318a6c5d6f03e232`,
-        {
-          aboutComment: { __op: 'Add', objects: [comment] }
-        }
-      )
-    }
-    // 评论页
-    if (props.page === 'comment') {
-      await global.$http.put(
-        `/api/1.1/classes/comments/6344220d318a6c5d6f03e232`,
+        `/api/1.1/classes/contentArticle/${props.article.objectId}`,
         {
           comment: { __op: 'Add', objects: [comment] }
         }
       )
+      await global.$http.put(
+        `/api/1.1/classes/articles/${route.params.objectId}`,
+        {
+          comment: { __op: 'Add', objects: [comment] }
+        }
+      )
+    } else if (!props.article && props.page) {
+      // 关于页评论
+      if (props.page === 'about') {
+        await global.$http.put(
+          `/api/1.1/classes/comments/6344220d318a6c5d6f03e232`,
+          {
+            aboutComment: { __op: 'Add', objects: [comment] }
+          }
+        )
+      }
+      // 评论页
+      if (props.page === 'comment') {
+        await global.$http.put(
+          `/api/1.1/classes/comments/6344220d318a6c5d6f03e232`,
+          {
+            comment: { __op: 'Add', objects: [comment] }
+          }
+        )
+      }
     }
+    global.$message({
+      message: '评论成功咯！！',
+      type: 'success'
+    })
+  } catch (error) {
+    global.$message({
+      message: '出了点错误，评论失败！！',
+      type: 'danger'
+    })
   }
 }
 
@@ -119,10 +130,26 @@ const handleSubReply = (item: IComment, index: number) => {
   }
 }
 
-// 加载更多回复
-const handleLoadMoreReply = () => {}
-// 加载更多评论
-const handleLoadMoreComments = () => {}
+// 格式化发布时间
+const formatTimeAgo = (comments: IComment[]) => {
+  comments.forEach((c) => {
+    const createdTime = new Date(c.createdAt as string).getTime()
+    c.timeAgo = timeAgoFn(new Date().getTime() - createdTime)
+    if (c.subComments) {
+      formatTimeAgo(c.subComments)
+    }
+  })
+}
+
+watch(
+  () => props.comment,
+  () => {
+    formatTimeAgo(props.comment)
+  },
+  {
+    deep: true
+  }
+)
 </script>
 
 <template>
@@ -154,14 +181,17 @@ const handleLoadMoreComments = () => {}
             <div class="username">
               {{ item.userName || 'anonymous' }}
             </div>
-            <div class="c-meta">{{ item.timeAgo || '' }}</div>
+            <div class="c-meta">{{ item.timeAgo + '' }}</div>
           </div>
           <div class="c-content">
             {{ item.content }}
           </div>
           <div class="action-box">
             <span class="reply" @click="handleReply(item)">
-              <i class="iconfont icon-liuyan"></i>
+              <span>
+                <i class="iconfont icon-liuyan"></i>
+                <span>{{ item.subComments?.length }}</span>
+              </span>
               <span class="reply-text">回复</span>
             </span>
           </div>
@@ -198,7 +228,9 @@ const handleLoadMoreComments = () => {}
                         {{ '回复 ' + sub.to.userName }}
                       </span>
                     </div>
-                    <div class="sub-meta">{{ sub.timeAgo }}</div>
+                    <div class="sub-meta" :attr="new Date()">
+                      {{ sub.timeAgo }}
+                    </div>
                   </div>
                   <div class="sub-content">{{ sub.content }}</div>
                   <div class="sub-action-box">
@@ -223,14 +255,6 @@ const handleLoadMoreComments = () => {}
                       </button>
                     </div>
                   </div>
-                  <div
-                    class="show-more-sub"
-                    v-if="item.subComments!.length > 5"
-                    @click="handleLoadMoreReply"
-                  >
-                    查看更多回复
-                    <i class="iconfont icon-down1"></i>
-                  </div>
                 </div>
               </div>
             </div>
@@ -238,12 +262,6 @@ const handleLoadMoreComments = () => {}
         </div>
       </div>
     </template>
-    <div class="show-more-box" v-if="props.comment.length > 5">
-      <div class="show-more" @click="handleLoadMoreComments">
-        <span>查看更多评论</span>
-        <i class="iconfont icon-down"></i>
-      </div>
-    </div>
     <div class="blank" v-if="props.comment.length === 0">
       <span>暂时没有更多评论</span>
     </div>
@@ -317,13 +335,17 @@ const handleLoadMoreComments = () => {}
         font-size: 14px;
         .reply {
           margin-right: 10px;
+          text-align: center;
           cursor: pointer;
-        }
-        .reply:hover {
-          color: #555;
-        }
-        .iconfont {
-          margin-right: 3px;
+          &:hover {
+            color: #555;
+          }
+          .iconfont {
+            margin-right: 3px;
+          }
+          .reply-text {
+            margin-left: 3px;
+          }
         }
       }
 
@@ -409,31 +431,8 @@ const handleLoadMoreComments = () => {}
                 margin-right: 3px;
               }
             }
-            .show-more-sub {
-              margin-top: 15px;
-              font-size: 14px;
-              color: #222;
-              cursor: pointer;
-              .icon-down1 {
-                font-size: 12px;
-              }
-            }
           }
         }
-      }
-    }
-  }
-  .show-more-box {
-    display: flex;
-    justify-content: center;
-    .show-more {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #999;
-      cursor: pointer;
-      &:hover {
-        color: #222;
       }
     }
   }

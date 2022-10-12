@@ -6,7 +6,7 @@ export default {
     from: RouteLocationNormalized,
     next: NavigationGuardNext
   ) => {
-    if (to.name === 'newarticle') {
+    if (to.name === 'manage' || to.name === 'newarticle') {
       const token = sessionStorage.getItem('sessionToken')
       if (!token) {
         next('/home')

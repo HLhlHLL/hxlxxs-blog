@@ -64,7 +64,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/views/search.vue')
       },
       {
-        path: 'article/:aid',
+        path: 'article/:aid/:index/:objectId?',
         name: 'article',
         component: () => import('@/views/article.vue')
       },
@@ -72,6 +72,11 @@ export const routes: RouteRecordRaw[] = [
         path: 'newarticle',
         name: 'newarticle',
         component: () => import('@/views/newarticle.vue')
+      },
+      {
+        path: 'manage',
+        name: 'manage',
+        component: () => import('@/views/manage.vue')
       }
     ]
   }

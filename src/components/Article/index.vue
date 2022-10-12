@@ -5,6 +5,7 @@ import { IArticle, ICategory, IContentArticle } from '@/types/index'
 
 type PropsData = {
   article: IContentArticle | IArticle
+  index?: number
   overview?: boolean
   loading?: boolean
 }
@@ -16,7 +17,11 @@ const props = withDefaults(defineProps<PropsData>(), {
 const handleNavigateToArticle = () => {
   router.push({
     name: 'article',
-    params: { aid: props.article.aid }
+    params: {
+      aid: props.article.aid,
+      index: props.index,
+      objectId: props.article.objectId
+    }
   })
 }
 
@@ -32,7 +37,7 @@ const handleNavigateToArticleList = (category: ICategory) => {
 </script>
 
 <template>
-  <div class="article">
+  <div class="article animate__animated animate__fadeIn">
     <header class="header">
       <div :class="['title', loading ? 'loading' : '']">
         <span class="title-text">
@@ -98,7 +103,7 @@ const handleNavigateToArticleList = (category: ICategory) => {
         </div>
       </div>
       <div class="divider">
-        <div class="div-mark"></div>
+        <span class="div-mark"></span>
       </div>
     </header>
     <template v-if="overview">
@@ -112,7 +117,7 @@ const handleNavigateToArticleList = (category: ICategory) => {
         </button>
       </div>
       <footer class="footer">
-        <span class="footer-mark"> </span>
+        <div class="footer-mark"></div>
       </footer>
     </template>
     <template v-else>
@@ -195,14 +200,12 @@ const handleNavigateToArticleList = (category: ICategory) => {
     }
   }
   .divider {
-    width: 100%;
-    height: 20px;
-    margin-bottom: 40px;
-    text-align: center;
     .div-mark {
-      width: 100%;
-      height: 20px;
-      background-color: #f7f7f7;
+      display: block;
+      margin: 40px auto 60px;
+      width: 50%;
+      height: 1px;
+      background-color: #ccc;
     }
   }
 }
@@ -238,12 +241,14 @@ const handleNavigateToArticleList = (category: ICategory) => {
     }
   }
   .footer {
+    width: 100%;
+    height: 20px;
+    margin: 80px 0 60px;
+    text-align: center;
     .footer-mark {
-      display: block;
-      margin: 80px auto 60px;
-      width: 10%;
-      height: 1px;
-      background-color: #ccc;
+      width: 100%;
+      height: 20px;
+      background-color: #f7f7f7;
     }
   }
   .content {

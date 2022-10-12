@@ -22,6 +22,9 @@ onBeforeMount(() => {
 
 <template>
   <div class="about animate__animated animate__fadeIn">
+    <div class="about-title">
+      <span>About Me</span>
+    </div>
     <div class="about-content">
       <MdEditor v-model="text" preview-only />
     </div>
@@ -31,4 +34,11 @@ onBeforeMount(() => {
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.about {
+  .about-title {
+    font-size: 40px;
+    text-align: center;
+  }
+}
+</style>

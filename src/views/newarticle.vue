@@ -7,7 +7,7 @@ import CategorySelector, {
 import TagGroup, { ITagGroup } from '@/components/TagGroup/index.vue'
 import { articleGenerator } from '@/utils/generator'
 import { basicCategories } from '@/mock/categories'
-import { ICategory } from '@/types/index'
+import { ICategory, ITag } from '@/types/index'
 import { mergeCategories } from '@/utils/shared'
 
 const global: any = inject('global')
@@ -15,14 +15,15 @@ const title = ref<string>('')
 const content = ref<string>('')
 const abstract = ref<string>('')
 const category = ref<ICategory[]>([])
-const tags = ref<string[]>([])
+const tags = ref<ITag[]>([])
 const categoryList = ref<ICategory[]>([])
+const tagList = ref<ITag[]>([])
 
 const handleValueChange = (value: ICategory[]) => {
   category.value = value
 }
 
-const handleTagChange = (tagList: string[]) => {
+const handleTagChange = (tagList: ITag[]) => {
   tags.value = tagList
 }
 
@@ -60,7 +61,7 @@ const handleSubmitNewArticle = async () => {
   const {
     article: a,
     tags: t,
-    category: c,
+    categories: c,
     contentArticle
   } = articleGenerator(
     title.value,
@@ -78,20 +79,22 @@ const handleSubmitNewArticle = async () => {
       ...contentArticle
     })
 
-    await global.$http.post('/api/1.1/classes/categories', {
-      ...c
+    await global.$http.post('/api/1.1/batch', {
+      requests: c.map((_c) => ({
+        method: 'POST',
+        path: '/1.1/classes/categories',
+        body: { ..._c }
+      }))
     })
 
-    const operation = t.map((item) => ({
-      method: 'POST',
-      path: '/1.1/classes/tags',
-      body: {
-        ...item
-      }
-    }))
-
     await global.$http.post('/api/1.1/batch', {
-      requests: operation
+      requests: t.map((item) => ({
+        method: 'POST',
+        path: '/1.1/classes/tags',
+        body: {
+          ...item
+        }
+      }))
     })
 
     global.$message({
@@ -100,7 +103,8 @@ const handleSubmitNewArticle = async () => {
     })
   } catch (error) {
     global.$message({
-      message: '等等，好像出了点小问题...'
+      message: '等等，好像出了点小问题...',
+      type: 'danger'
     })
   } finally {
     handleResetArticle()
@@ -112,8 +116,14 @@ const getCategoryList = async () => {
   categoryList.value = mergeCategories(basicCategories, data.results)
 }
 
+const getTagList = async () => {
+  const { data } = await global.$http.get('/api/1.1/classes/tags')
+  tagList.value = data.results
+}
+
 onBeforeMount(() => {
   getCategoryList()
+  getTagList()
 })
 </script>
 
@@ -135,7 +145,7 @@ onBeforeMount(() => {
       <div class="category-title">添加分类</div>
       <CategorySelector
         ref="categorySelectorRef"
-        :data="categoryList"
+        :categories="categoryList"
         :placeholder="'请选择分类或添加自定义分类名称'"
         @handleValueChange="handleValueChange"
       />
@@ -145,6 +155,7 @@ onBeforeMount(() => {
       <TagGroup
         ref="tagGroupRef"
         :placeholder="'添加标签'"
+        :tags="tagList"
         @handleTagChange="handleTagChange"
       />
     </div>
