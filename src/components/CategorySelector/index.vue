@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import gsap from 'gsap'
 import { ICategory } from '@/types/index'
 import { v4 as uuidv4 } from 'uuid'
 
 export interface ICategorySelector {
   restSelector: () => void
+  getSelectorValues: () => void
 }
 
 type PropsData = {
   placeholder: string
   categories: ICategory[]
+  currentCategory: ICategory
 }
 
 const emit = defineEmits(['handleValueChange'])
@@ -75,11 +77,18 @@ const handleOpenOrCloseSelector = () => {
   }
 }
 
-const restSelector = () => {
-  level1IptValue.value = ''
-  level2IptValue.value = ''
-  value.value = []
-}
+watch(
+  () => props.currentCategory,
+  (newValue) => {
+    if (newValue.pid) {
+      const current = props.categories.find((c) => c.cid === newValue.pid)
+      level1IptValue.value = current?.categoryName || ''
+      level2IptValue.value = newValue.categoryName
+    } else {
+      level1IptValue.value = newValue.categoryName
+    }
+  }
+)
 
 document.addEventListener('click', function (e) {
   if (
@@ -98,8 +107,19 @@ document.addEventListener('click', function (e) {
   }
 })
 
+const restSelector = () => {
+  level1IptValue.value = ''
+  level2IptValue.value = ''
+  value.value = []
+}
+
+const getSelectorValues = () => {
+  emit('handleValueChange', value.value)
+  console.log(value.value)
+}
 defineExpose({
-  restSelector
+  restSelector,
+  getSelectorValues
 })
 </script>
 

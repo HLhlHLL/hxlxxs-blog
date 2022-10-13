@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { ref, inject, watch } from 'vue'
 import Tag from '@/components/Tag/index.vue'
 import { ITag } from '@/types'
 import gsap from 'gsap'
@@ -12,6 +12,7 @@ export interface ITagGroup {
 type PropsData = {
   tags: ITag[]
   placeholder: string
+  currentTags?: ITag[]
 }
 const global: any = inject('global')
 const emit = defineEmits(['handleTagChange'])
@@ -102,6 +103,13 @@ document.addEventListener('click', function (e) {
     fold.value = !fold.value
   }
 })
+
+watch(
+  () => props.currentTags,
+  (newValue) => {
+    tags.value = newValue || []
+  }
+)
 
 const resetTag = () => {
   iptValue.value = ''

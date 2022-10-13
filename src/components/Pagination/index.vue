@@ -47,7 +47,7 @@ const totalPage = computed(() =>
 </script>
 
 <template>
-  <div class="pagination">
+  <div class="pagination animate__animated animate__fadeIn">
     <span
       class="page arrow"
       v-if="props.pagination.currentPage > 1"
@@ -116,6 +116,7 @@ span {
   border: 2px solid #666;
   cursor: pointer;
   box-sizing: border-box;
+  transition: all 0.2s linear;
 }
 .page:hover {
   background-color: #222;

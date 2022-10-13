@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, reactive, ref, watch } from 'vue'
+import { inject, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import Article from '@/components/Article/index.vue'
 import Comments from '@/components/Comments/index.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -58,19 +58,45 @@ const handleToRelatedArticle = (rel: IArticle) => {
 }
 
 const getArticleInfo = async () => {
-  const aid = route.params.aid
-  const { data: res1 } = await global.$http.get(
-    `/api/1.1/classes/contentArticle?where={"aid":"${aid}"}`
-  )
-  compData.article = res1.results[0]
-  comment.value = formatCommentTree(res1.results[0].comment.slice(0))
-  loading.value = false
-  const { data: res2 } = await global.$http.get(
-    `/api/1.1/classes/articles?where={"cid": "${compData.article.cid}"}?limit=5`
-  )
-  relatedArticle.value = res2.results.filter(
-    (r: any) => r.aid !== compData.article.aid
-  )
+  try {
+    const aid = route.params.aid
+    const { data: res1 } = await global.$http.get(
+      `/api/1.1/classes/contentArticle?where={"aid":"${aid}"}`
+    )
+    compData.article = res1.results[0]
+    comment.value = formatCommentTree(res1.results[0].comment.slice(0)) || []
+    loading.value = false
+    const { data: res2 } = await global.$http.get(
+      `/api/1.1/classes/articles?where={"cid": "${compData.article.cid}"}?limit=5`
+    )
+    relatedArticle.value = res2.results.filter(
+      (r: any) => r.aid !== compData.article.aid
+    )
+
+    await global.$http.put(
+      `/api/1.1/classes/contentArticle/${compData.article.objectId}`,
+      {
+        meta: {
+          visitedTimes: compData.article.meta.visitedTimes + 1,
+          wordCount: compData.article.meta.wordCount,
+          costTime: compData.article.meta.costTime
+        }
+      }
+    )
+    const { data } = await global.$http.get(
+      `/api/1.1/classes/articles?where={"aid": "${compData.article.aid}"}`
+    )
+    const res = data.results[0]
+    await global.$http.put(`/api/1.1/classes/articles/${res.objectId}`, {
+      meta: {
+        visitedTimes: compData.article.meta.visitedTimes + 1,
+        wordCount: compData.article.meta.wordCount,
+        costTime: compData.article.meta.costTime
+      }
+    })
+
+    compData.article.meta.visitedTimes++
+  } catch (error) {}
 }
 
 onBeforeMount(() => {
@@ -123,7 +149,7 @@ watch(
     <div class="pre-article" v-if="currentArticleIndex >= 1">
       <span @click="handleChangeArticle('previous')">
         <i class="iconfont icon-left"></i>
-        {{ articleStore.articleList[currentArticleIndex - 1].title }}
+        {{ articleStore.articleList[currentArticleIndex - 1]?.title }}
       </span>
     </div>
     <div
@@ -131,7 +157,7 @@ watch(
       v-if="currentArticleIndex < articleStore.articleList.length - 1"
     >
       <span @click="handleChangeArticle('next')">
-        {{ articleStore.articleList[currentArticleIndex + 1].title }}
+        {{ articleStore.articleList[currentArticleIndex + 1]?.title }}
         <i class="iconfont icon-right"></i>
       </span>
     </div>

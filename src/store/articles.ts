@@ -15,5 +15,9 @@ export const useArticlesStore = defineStore('articles', {
     setArticleList(articleList: IArticle[]) {
       this.articleList = articleList
     }
+  },
+  persist: {
+    paths: ['articleList'],
+    storage: sessionStorage
   }
 })

@@ -2,6 +2,7 @@
 import { ITag } from '@/types'
 import { inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import MessageBox from '@/components/MessageBox/index.vue'
 
 const global: any = inject('global')
 
@@ -34,7 +35,7 @@ onMounted(() => {
       <span>Tags</span>
     </div>
     <div class="tags">
-      <a
+      <span
         class="tag-item"
         v-for="tag in tags"
         :key="tag.tagName"
@@ -44,14 +45,14 @@ onMounted(() => {
         @click="handleNavigateToArticle(tag)"
       >
         {{ tag.tagName }}
-      </a>
+      </span>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .tag-set {
-  min-height: 600px;
+  min-height: 650px;
   .tag-set-title {
     font-size: 40px;
     text-align: center;
@@ -63,9 +64,21 @@ onMounted(() => {
       color: #111;
       margin: 15px;
       transition: all 0.1s linear;
+      cursor: pointer;
+      animation: showup 0.5s linear;
       &:hover {
-        color: #111 !important;
+        color: #111;
         text-shadow: 3px 3px 4px rgba($color: #000000, $alpha: 0.2);
+      }
+    }
+    @keyframes showup {
+      from {
+        transform: scale(0) rotate(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
       }
     }
   }

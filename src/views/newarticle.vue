@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, ref } from 'vue'
+import { inject, onBeforeMount, onMounted, reactive, ref } from 'vue'
 import MdEditor from 'md-editor-v3'
 import CategorySelector, {
   ICategorySelector
@@ -7,10 +7,20 @@ import CategorySelector, {
 import TagGroup, { ITagGroup } from '@/components/TagGroup/index.vue'
 import { articleGenerator } from '@/utils/generator'
 import { basicCategories } from '@/mock/categories'
-import { ICategory, ITag } from '@/types/index'
+import { ICategory, IContentArticle, ITag } from '@/types/index'
 import { mergeCategories } from '@/utils/shared'
+import { useRoute } from 'vue-router'
+import router from '@/router'
+
+type CompData = {
+  article: IContentArticle
+}
 
 const global: any = inject('global')
+const route = useRoute()
+const compData = reactive<CompData>({
+  article: {} as IContentArticle
+})
 const title = ref<string>('')
 const content = ref<string>('')
 const abstract = ref<string>('')
@@ -111,6 +121,58 @@ const handleSubmitNewArticle = async () => {
   }
 }
 
+const handleEditArticle = async () => {
+  const article = compData.article
+  const tit = title.value
+  const con = content.value
+  const abs = abstract.value
+  const cat =
+    category.value.length === 2
+      ? category.value[1]
+      : category.value[0] || article.category
+  const t = tags.value || article.tags
+
+  const oId = route.params.objectId
+  try {
+    await global.$http.put(
+      `/api/1.1/classes/contentArticle/${article.objectId}`,
+      {
+        title: tit,
+        content: con,
+        abstract: abs,
+        category: cat,
+        tags: t,
+        meta: {
+          visitedTimes: article.meta.visitedTimes,
+          wordCount: con.length,
+          costTime: Math.floor(con.length / 400) || 1
+        }
+      }
+    )
+    await global.$http.put(`/api/1.1/classes/articles/${oId}`, {
+      title: tit,
+      content: con,
+      abstract: abs,
+      meta: {
+        visitedTimes: article.meta.visitedTimes,
+        wordCount: con.length,
+        costTime: Math.floor(con.length / 400) || 1
+      }
+    })
+
+    router.push({ name: 'home' })
+    global.$message({
+      message: '修改成功咯！！',
+      type: 'success'
+    })
+  } catch (error) {
+    global.$message({
+      message: '修改出了点小差错！！',
+      type: 'danger'
+    })
+  }
+}
+
 const getCategoryList = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/categories')
   categoryList.value = mergeCategories(basicCategories, data.results)
@@ -124,6 +186,23 @@ const getTagList = async () => {
 onBeforeMount(() => {
   getCategoryList()
   getTagList()
+})
+
+const getArticle = async (aid: string) => {
+  const { data } = await global.$http.get(
+    `/api/1.1/classes/contentArticle?where={"aid": "${aid}"}`
+  )
+  compData.article = data.results[0]
+  title.value = compData.article.title
+  content.value = compData.article.content
+  abstract.value = compData.article.abstract
+}
+
+onMounted(() => {
+  const aid = route.params.aid as string
+  if (aid) {
+    getArticle(aid)
+  }
 })
 </script>
 
@@ -146,6 +225,7 @@ onBeforeMount(() => {
       <CategorySelector
         ref="categorySelectorRef"
         :categories="categoryList"
+        :currentCategory="compData.article.category"
         :placeholder="'请选择分类或添加自定义分类名称'"
         @handleValueChange="handleValueChange"
       />
@@ -156,12 +236,18 @@ onBeforeMount(() => {
         ref="tagGroupRef"
         :placeholder="'添加标签'"
         :tags="tagList"
+        :currentTags="compData.article.tags"
         @handleTagChange="handleTagChange"
       />
     </div>
-    <div class="button-group">
-      <button class="reset" @click="handleResetArticle">重置</button>
-      <button class="submit" @click="handleSubmitNewArticle">提交</button>
+    <div class="actions">
+      <div class="actions-add" v-if="!route.params.aid">
+        <button class="reset" @click="handleResetArticle">重置</button>
+        <button class="submit" @click="handleSubmitNewArticle">提交</button>
+      </div>
+      <div class="actions-edit" v-else>
+        <button class="edit" @click="handleEditArticle">确认修改</button>
+      </div>
     </div>
   </div>
 </template>
@@ -228,7 +314,7 @@ onBeforeMount(() => {
     }
   }
 
-  .button-group {
+  .actions {
     margin-top: 20px;
     text-align: center;
 

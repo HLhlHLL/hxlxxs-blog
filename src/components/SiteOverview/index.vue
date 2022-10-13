@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, ref } from 'vue'
+import { inject, onBeforeMount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { useUser } from '@/store/user'
@@ -66,7 +66,7 @@ const handleLogin = async () => {
           message: '欢迎欢迎，热烈欢迎！！',
           type: 'success'
         })
-        router.push({ name: 'manage' })
+        router.push({ name: 'home' })
       }
     } catch (error) {
       global.$message({
@@ -80,6 +80,7 @@ const handleLogin = async () => {
 const handleLogout = () => {
   ifLogged.value = false
   sessionStorage.removeItem('sessionToken')
+  userStore.sessionToken = ''
   router.push({ name: 'home' })
 }
 
@@ -101,6 +102,11 @@ const getSiteInfo = async () => {
 
 onBeforeMount(() => {
   getSiteInfo()
+})
+
+onMounted(() => {
+  ifLogged.value =
+    sessionStorage.getItem('sessionToken') === userStore.sessionToken
 })
 </script>
 

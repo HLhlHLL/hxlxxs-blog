@@ -9,5 +9,10 @@ export const useUser = defineStore('user', {
     return {
       sessionToken: ''
     }
+  },
+  persist: {
+    key: 'user-token',
+    storage: sessionStorage,
+    paths: ['sessionToken']
   }
 })

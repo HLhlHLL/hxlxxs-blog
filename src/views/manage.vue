@@ -19,7 +19,7 @@ onBeforeRouteLeave((to, from) => {
 </script>
 
 <template>
-  <div class="manage">
+  <div class="manage animate__animated animate__fadeIn">
     <div class="manage-box">
       <div class="manage-title">
         <span>你想做点什么</span>
@@ -49,10 +49,10 @@ onBeforeRouteLeave((to, from) => {
           transition: all 0.1s linear;
           cursor: pointer;
           color: #222;
+          font-weight: 600;
         }
         a:hover {
           font-size: 24px;
-          font-weight: 600;
         }
       }
     }

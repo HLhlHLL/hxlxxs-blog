@@ -40,7 +40,7 @@ const handleNavigateToArticleList = (category: ICategory) => {
   <div class="article animate__animated animate__fadeIn">
     <header class="header">
       <div :class="['title', loading ? 'loading' : '']">
-        <span class="title-text">
+        <span class="title-text" @click="handleNavigateToArticle">
           {{ props.article.title || '' }}
           <div class="under-line"></div>
         </span>

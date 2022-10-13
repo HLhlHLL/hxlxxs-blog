@@ -92,6 +92,14 @@ class HttpRequest {
       data
     })
   }
+
+  delete(url: string, data: any) {
+    return this.request({
+      url,
+      method: 'DELETE',
+      ...data
+    })
+  }
 }
 
 export default new HttpRequest()

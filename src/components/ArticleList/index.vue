@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue'
+import { Directive, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
 import Pagination from '@/components/Pagination/index.vue'
 import { useArticlesStore } from '@/store/articles'
+import { useUser } from '@/store/user'
+import MessageBox from '../MessageBox/index.vue'
 
 type PropsData = {
   payload?: string
@@ -12,6 +14,7 @@ type PropsData = {
 const route = useRoute()
 const router = useRouter()
 const articleStore = useArticlesStore()
+const userStore = useUser()
 const props = defineProps<PropsData>()
 const global: any = inject('global')
 const currentYear = ref<number>(new Date().getFullYear())
@@ -22,6 +25,62 @@ const detail = reactive({
   tid: route.params.tid as string,
   cid: route.params.cid as string
 })
+const toRemoveArticle = ref<IArticle>()
+const showMessageBox = ref<boolean>(false)
+
+const vPermission: Directive = (el: HTMLElement) => {
+  const token = sessionStorage.getItem('sessionToken')
+  if (token !== userStore.sessionToken) {
+    el.remove()
+  }
+}
+
+const handleEditArticle = (article: IArticle) => {
+  router.push({
+    name: 'newarticle',
+    params: {
+      aid: article.aid,
+      objectId: article.objectId
+    }
+  })
+}
+
+const handleRemoveArticle = (article: IArticle) => {
+  showMessageBox.value = true
+  toRemoveArticle.value = article
+}
+const handleCancel = () => {
+  global.$message({
+    message: '取消了删除操作',
+    type: 'info'
+  })
+}
+const handleConfirm = async () => {
+  try {
+    await global.$http.delete(
+      `/api/1.1/classes/articles/${toRemoveArticle.value!.objectId}`
+    )
+    const { data } = await global.$http.get(
+      `/api/1.1/classes/contentArticle?where={"aid": "${
+        toRemoveArticle.value!.aid
+      }"}`
+    )
+    const contentArticle = data.results[0]
+    await global.$http.delete(
+      `/api/1.1/classes/contentArticle/${contentArticle.objectId}`
+    )
+    getArticleList()
+    global.$message({
+      message: '删除成功！！',
+      type: 'success'
+    })
+  } catch (error) {
+    global.$message({
+      message: '删除失败！！',
+      type: 'danger'
+    })
+  }
+}
 
 const pagination = reactive({
   total: 0,
@@ -47,10 +106,12 @@ const handleNavigateToArticle = (article: IArticle) => {
 const handlePreviousYear = () => {
   currentYear.value -= 1
   getArticleList()
+  getArticleCount()
 }
 const handleNextYear = () => {
   currentYear.value += 1
   getArticleList()
+  getArticleCount()
 }
 
 const getArticleCount = async () => {
@@ -102,7 +163,9 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}&limit=${pagination.size}&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${
+        pagination.size
+      }&skip=${skip}`
     )
     articles.value = data.results
   } else if (detail.cid) {
@@ -113,7 +176,9 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}&limit=${pagination.size}&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${
+        pagination.size
+      }&skip=${skip}`
     )
     articles.value = data.results
   } else {
@@ -122,7 +187,9 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}&limit=${pagination.size}&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}&order=-createdAt&limit=${
+        pagination.size
+      }&skip=${skip}`
     )
     articles.value = data.results
   }
@@ -171,6 +238,17 @@ onMounted(() => {
           </div>
           <div class="item-title">{{ article.title }}</div>
         </div>
+        <div class="actions" v-permission>
+          <button class="edit-button" @click.stop="handleEditArticle(article)">
+            编辑
+          </button>
+          <button
+            class="remove-button"
+            @click.stop="handleRemoveArticle(article)"
+          >
+            删除
+          </button>
+        </div>
       </div>
     </div>
     <div class="footer">
@@ -181,6 +259,15 @@ onMounted(() => {
         @getCurrentPage="handleGetCurrentPage"
       />
     </div>
+    <MessageBox
+      v-model="showMessageBox"
+      title="这是一条提示"
+      content="是否确认删除"
+      cancel-button-text="取消"
+      confirm-button-text="确定"
+      @handleCancel="handleCancel"
+      @handleConfirm="handleConfirm"
+    />
   </div>
 </template>
 
@@ -242,10 +329,12 @@ onMounted(() => {
       opacity: 0;
       cursor: pointer;
       animation: showup 0.5s ease-out forwards;
-      .item-meta {
-        font-size: 14px;
-        color: #999;
-        vertical-align: bottom;
+      .item-content {
+        .item-meta {
+          font-size: 14px;
+          color: #999;
+          vertical-align: bottom;
+        }
       }
       &:hover {
         border-color: #555;
@@ -265,14 +354,36 @@ onMounted(() => {
       &:hover::before {
         background-color: #555;
       }
+      .actions {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        .edit-button,
+        .remove-button {
+          margin-left: 10px;
+          border: 1px solid #222;
+          transition: all 0.2s linear;
+          border-radius: 5px;
+          background-color: #fff;
+          color: #222;
+          cursor: pointer;
+          &:hover {
+            background-color: #222;
+            color: #fff;
+          }
+        }
+      }
     }
 
     @keyframes showup {
       from {
+        width: 80%;
         left: 100px;
         opacity: 0;
       }
       to {
+        width: 100%;
         left: -1px;
         opacity: 1;
       }
