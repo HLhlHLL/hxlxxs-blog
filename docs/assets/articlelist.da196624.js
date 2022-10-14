@@ -1,1 +1,0 @@
-import{A as t}from"./index.f0758de8.js";import{d as e,b as o,c as a,k as r}from"./index.daa6cca7.js";import"./index.8592fcbc.js";import"./articles.efae0f2b.js";const s={class:"article-list"},d=e({__name:"articlelist",setup(c){return(i,l)=>(o(),a("div",s,[r(t,{payload:"\u5206\u7C7B"})]))}});export{d as default};

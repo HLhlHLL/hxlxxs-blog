@@ -1,1 +1,0 @@
-import{d as e,b as a,c as s,h as t}from"./index.daa6cca7.js";const n={class:"search animate__animated animate__fadeIn"},_=t("h1",null,"search",-1),c=[_],h=e({__name:"search",setup(o){return(r,d)=>(a(),s("div",n,c))}});export{h as default};
