@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { reactive, onBeforeMount, ref, inject } from 'vue'
-import Article from '@/components/Article/index.vue'
-import Pagination from '@/components/Pagination/index.vue'
 import { IArticle } from '@/types'
 import { useArticlesStore } from '@/store/articles'
+import Pagination from '@/components/Pagination/index.vue'
+import Article from '@/components/Article/index.vue'
+import NoData from '@/components/NoData/index.vue'
 
 const global: any = inject('global')
 const articleList = ref<IArticle[]>([])
@@ -56,6 +57,10 @@ onBeforeMount(() => {
       :article="article"
       :key="article.aid"
       :index="index"
+    />
+    <NoData
+      v-if="articleList.length === 0"
+      text="这个人很懒，还什么都没写哦。。。"
     />
     <Pagination
       button-color="#222"

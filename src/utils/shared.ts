@@ -27,11 +27,9 @@ export const timeAgoFn = (timestamp: number) => {
 }
 
 export const formatCommentTree = (comment: IComment[]) => {
-  // 格式化发布时间
-  // comment.forEach((c) => {
-  //   const createdTime = new Date(c.createdAt as string).getTime()
-  //   c.timeAgo = timeAgoFn(new Date().getTime() - createdTime)
-  // })
+  if (comment.length <= 0) {
+    return []
+  }
   const res = comment.filter((c) => !c.pid)
   // 主评论按时间升序排列，子评论不变
   res.sort((pre: IComment, next: IComment) => {
@@ -51,6 +49,10 @@ export const formatCommentTree = (comment: IComment[]) => {
 }
 
 export const formatCategoryTree = (category: ICategory[]) => {
+  if (category.length <= 0) {
+    return []
+  }
+
   const parent = category.filter((c) => !c.pid)
   const children = category.filter((c) => c.pid)
 

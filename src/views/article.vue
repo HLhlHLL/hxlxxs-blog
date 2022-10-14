@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { inject, onBeforeMount, reactive, ref, watch } from 'vue'
 import Article from '@/components/Article/index.vue'
 import Comments from '@/components/Comments/index.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -18,6 +18,8 @@ const comment = ref<IComment[]>([])
 const loading = ref<boolean>(true)
 const currentArticleIndex = ref<number>(Number(route.params.index))
 const relatedArticle = ref<IArticle[]>([])
+
+const href = ref<string>('')
 
 const handleClickTag = (tag: ITag) => {
   router.push({
@@ -101,6 +103,9 @@ const getArticleInfo = async () => {
 
 onBeforeMount(() => {
   getArticleInfo()
+  if (location) {
+    href.value = location.href
+  }
 })
 
 watch(
@@ -170,7 +175,7 @@ watch(
       </li>
       <li class="copyright-link">
         <strong>本文链接:</strong>
-        <a href="javascript:;"></a>
+        <a v-if="href" :href="href">{{ href }}</a>
       </li>
       <li class="copyright-license">
         <strong>版权声明:</strong>

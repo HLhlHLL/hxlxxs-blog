@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { inject, onBeforeMount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import gsap from 'gsap'
 import { useUser } from '@/store/user'
+import gsap from 'gsap'
 
 const global: any = inject('global')
 
@@ -126,7 +126,7 @@ onMounted(() => {
           <input type="password" autocomplete="off" v-model.trim="password" />
         </div>
         <div class="form-item">
-          <button @click="handleLogin">登录</button>
+          <button @click="handleLogin">进入</button>
         </div>
       </form>
     </div>
@@ -140,9 +140,7 @@ onMounted(() => {
         <img src="@/assets/images/avatar.jpg" alt="hxlxx" />
       </div>
       <div class="author">hxlxx</div>
-      <div class="description">
-        绘一纸潇湘，花盏玲珑如妆，雨落弦响，陌上芳华，醉影照天长
-      </div>
+      <div class="description">我把這陳年風褸，送贈你解咒</div>
       <div class="state">
         <router-link class="state-item" to="/archives">
           <span class="counter">{{ archivesCount }}</span>
@@ -163,10 +161,14 @@ onMounted(() => {
           <span>链接</span>
         </div>
         <div class="link-items">
-          <div class="link">
+          <a
+            href="https://github.com/HLhlHLL/hxlxxs-blog/tree/master"
+            target="_blank"
+            class="link"
+          >
             <i class="iconfont icon-github"></i>
             <span>github</span>
-          </div>
+          </a>
         </div>
       </div>
     </div>

@@ -2,10 +2,11 @@
 import { Directive, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
-import Pagination from '@/components/Pagination/index.vue'
-import { useArticlesStore } from '@/store/articles'
 import { useUser } from '@/store/user'
+import { useArticlesStore } from '@/store/articles'
+import Pagination from '@/components/Pagination/index.vue'
 import MessageBox from '../MessageBox/index.vue'
+import NoData from '@/components/NoData/index.vue'
 
 type PropsData = {
   payload?: string
@@ -70,6 +71,7 @@ const handleConfirm = async () => {
       `/api/1.1/classes/contentArticle/${contentArticle.objectId}`
     )
     getArticleList()
+    getArticleCount()
     global.$message({
       message: '删除成功！！',
       type: 'success'
@@ -268,6 +270,7 @@ onMounted(() => {
       @handleCancel="handleCancel"
       @handleConfirm="handleConfirm"
     />
+    <NoData v-if="articles.length === 0" text="没有更多文章哦，waiting..." />
   </div>
 </template>
 

@@ -7,7 +7,7 @@ import { formatCommentTree } from '@/utils/shared'
 
 const global: any = inject('global')
 
-const text = ref<string>('## hello\r\n + 介绍')
+const text = ref<string>('# hello\r\n ## 本人前端新人一枚，期待你的来访！')
 const comment = ref<IComment[]>([])
 
 const getCommentList = async () => {

@@ -2,7 +2,7 @@
 import { ITag } from '@/types'
 import { inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import MessageBox from '@/components/MessageBox/index.vue'
+import NoData from '@/components/NoData/index.vue'
 
 const global: any = inject('global')
 
@@ -47,6 +47,7 @@ onMounted(() => {
         {{ tag.tagName }}
       </span>
     </div>
+    <NoData v-if="tags.length === 0" text="还没有添加标签，waiting..." />
   </div>
 </template>
 

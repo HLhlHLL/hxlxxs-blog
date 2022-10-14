@@ -28,6 +28,7 @@ const handleScrollHeader = () => {
 
 <template>
   <div class="header">
+    <span class="header-title tracking-in-expand">Welcome to Hxlxx's blog</span>
     <img class="header-img" src="@/assets/images/header-backGround.jpg" />
     <div class="pulldown-button" @click="handleScrollHeader">
       <span class="button-text">Let's go!</span>
@@ -55,12 +56,51 @@ const handleScrollHeader = () => {
 
 <style scoped lang="scss">
 .header {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   background-color: #f5f7f9;
+  .header-title {
+    position: absolute;
+    top: 50px;
+    right: 100px;
+    font-size: 40px;
+    font-weight: 600;
+    color: #fefefe;
+    transform: skew(-20deg);
+    text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
+  }
+  .tracking-in-expand {
+    -webkit-animation: tracking-in-expand 0.7s
+      cubic-bezier(0.215, 0.61, 0.355, 1) both;
+    animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+  @-webkit-keyframes tracking-in-expand {
+    0% {
+      letter-spacing: -0.5em;
+      opacity: 0;
+    }
+    40% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes tracking-in-expand {
+    0% {
+      letter-spacing: -0.5em;
+      opacity: 0;
+    }
+    40% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
   .header-img {
     width: 100%;
     height: 100%;
@@ -74,15 +114,20 @@ const handleScrollHeader = () => {
     font-size: 40px;
     color: #ddd;
     cursor: pointer;
+    .button-text {
+      display: inline-block;
+      transform: skew(-10deg);
+      text-shadow: 2px 0 4px rgba($color: #000000, $alpha: 0.5);
+    }
     .icon-down {
       font-size: 40px;
       width: 100%;
       text-align: center;
+      text-shadow: 0 2px 2px rgba($color: #000000, $alpha: 0.8);
     }
   }
 }
 .main {
-  margin-top: 100vh;
   min-width: 1300px;
   .main-inner {
     display: flex;

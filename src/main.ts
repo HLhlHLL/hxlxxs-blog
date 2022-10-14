@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
-// import ElementPlus from 'element-plus'
 import App from './App.vue'
 import router from './router'
-// import 'element-plus/dist/index.css'
 import 'md-editor-v3/lib/style.css'
 import 'animate.css'
 import '@/style/common.css'
@@ -23,5 +21,4 @@ app.provide('global', {
 app.use(cusPlugin)
 app.use(router)
 app.use(pinia)
-// .use(ElementPlus)
 app.mount('#app')
