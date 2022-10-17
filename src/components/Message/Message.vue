@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { reject } from 'lodash'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 type PropsData = {
   message: string
   type: string

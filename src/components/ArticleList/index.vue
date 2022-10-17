@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Directive, inject, onMounted, reactive, ref, watch } from 'vue'
+import { Directive, inject, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
 import { useUser } from '@/store/user'
@@ -26,6 +26,13 @@ const detail = reactive({
   tid: route.params.tid as string,
   cid: route.params.cid as string
 })
+const pagination = reactive({
+  total: 0,
+  size: 5,
+  range: 3,
+  currentPage: 1
+})
+
 const toRemoveArticle = ref<IArticle>()
 const showMessageBox = ref<boolean>(false)
 
@@ -84,12 +91,6 @@ const handleConfirm = async () => {
   }
 }
 
-const pagination = reactive({
-  total: 0,
-  size: 5,
-  range: 3,
-  currentPage: 1
-})
 const handleGetCurrentPage = (page: number) => {
   pagination.currentPage = page
   getArticleList()
