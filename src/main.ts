@@ -8,7 +8,6 @@ import '@/style/reset.css'
 import '@/style/animista.css'
 import http from '@/utils/request'
 import message from '@/components/Message/index'
-import '@/components/Message/index'
 import cusPlugin from '@/plugin/index'
 import pinia from './store'
 

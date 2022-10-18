@@ -10,7 +10,7 @@ const comment = ref<IComment[]>([])
 
 const getCommentList = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/comments')
-  comment.value = formatCommentTree(data.results[0].comment)
+  comment.value = formatCommentTree(data.results[0]?.comment || [])
 }
 
 onBeforeMount(() => {

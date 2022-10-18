@@ -27,7 +27,7 @@ export const timeAgoFn = (timestamp: number) => {
 }
 
 export const formatCommentTree = (comment: IComment[]) => {
-  if (comment.length <= 0) {
+  if (!comment || comment.length <= 0) {
     return []
   }
   const res = comment.filter((c) => !c.pid)

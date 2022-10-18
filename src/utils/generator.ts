@@ -22,9 +22,6 @@ export const articleGenerator = (
   categories: ICategory[],
   tags: ITag[]
 ): IArticleInformation => {
-  // // tags
-  tags = tags.filter((t) => !t.isExist)
-
   // category
   let category = {} as ICategory
   if (categories.length === 1) {
@@ -63,6 +60,9 @@ export const articleGenerator = (
     },
     article
   )
+
+  // // tags
+  tags = tags.filter((t) => !t.isExist)
 
   return {
     tags,

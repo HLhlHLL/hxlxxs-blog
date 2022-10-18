@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Directive, inject, onMounted, reactive, ref } from 'vue'
+import { Directive, inject, watch, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
 import { useUser } from '@/store/user'
@@ -32,6 +32,7 @@ const pagination = reactive({
   range: 3,
   currentPage: 1
 })
+const noData = ref<boolean>(false)
 
 const toRemoveArticle = ref<IArticle>()
 const showMessageBox = ref<boolean>(false)
@@ -57,6 +58,9 @@ const handleRemoveArticle = (article: IArticle) => {
   showMessageBox.value = true
   toRemoveArticle.value = article
 }
+const handleRemoveTagOrCategory = () => {
+  showMessageBox.value = true
+}
 const handleCancel = () => {
   global.$message({
     message: '取消了删除操作',
@@ -64,30 +68,63 @@ const handleCancel = () => {
   })
 }
 const handleConfirm = async () => {
-  try {
-    await global.$http.delete(
-      `/api/1.1/classes/articles/${toRemoveArticle.value!.objectId}`
-    )
-    const { data } = await global.$http.get(
-      `/api/1.1/classes/contentArticle?where={"aid": "${
-        toRemoveArticle.value!.aid
-      }"}`
-    )
-    const contentArticle = data.results[0]
-    await global.$http.delete(
-      `/api/1.1/classes/contentArticle/${contentArticle.objectId}`
-    )
-    getArticleList()
-    getArticleCount()
-    global.$message({
-      message: '删除成功！！',
-      type: 'success'
-    })
-  } catch (error) {
-    global.$message({
-      message: '删除失败！！',
-      type: 'danger'
-    })
+  if (articles.value.length > 0) {
+    try {
+      await global.$http.delete(
+        `/api/1.1/classes/articles/${toRemoveArticle.value!.objectId}`
+      )
+      const { data } = await global.$http.get(
+        `/api/1.1/classes/contentArticle?where={"aid": "${
+          toRemoveArticle.value!.aid
+        }"}`
+      )
+      const contentArticle = data.results[0]
+      await global.$http.delete(
+        `/api/1.1/classes/contentArticle/${contentArticle.objectId}`
+      )
+      getArticleList()
+      getArticleCount()
+      global.$message({
+        message: '删除成功！！',
+        type: 'success'
+      })
+    } catch (error) {
+      global.$message({
+        message: '删除失败！！',
+        type: 'danger'
+      })
+    }
+  } else {
+    try {
+      if (detail.cid) {
+        const { data } = await global.$http.get(
+          `/api/1.1/classes/categories?where={"cid": "${detail.cid}"}`
+        )
+        const oId = data.results[0].objectId
+        await global.$http.delete(`/api/1.1/classes/categories/${oId}`)
+        global.$message({
+          message: '删除成功！！',
+          type: 'success'
+        })
+        router.go(-1)
+      } else if (detail.tid) {
+        const { data } = await global.$http.get(
+          `/api/1.1/classes/tags?where={"tid": "${detail.tid}"}`
+        )
+        const oId = data.results[0].objectId
+        await global.$http.delete(`/api/1.1/classes/tags/${oId}`)
+        global.$message({
+          message: '删除成功！！',
+          type: 'success'
+        })
+        router.go(-1)
+      }
+    } catch (error) {
+      global.$message({
+        message: '删除失败！！',
+        type: 'danger'
+      })
+    }
   }
 }
 
@@ -202,6 +239,13 @@ onMounted(() => {
   getArticleList()
   getArticleCount()
 })
+
+watch(
+  () => articles,
+  (newValue) => {
+    newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
+  }
+)
 </script>
 
 <template>
@@ -257,7 +301,7 @@ onMounted(() => {
     <div class="footer">
       <Pagination
         button-color="#222"
-        v-if="pagination.total > 5"
+        v-if="articles.length > 5"
         :pagination="pagination"
         @getCurrentPage="handleGetCurrentPage"
       />
@@ -271,7 +315,12 @@ onMounted(() => {
       @handleCancel="handleCancel"
       @handleConfirm="handleConfirm"
     />
-    <NoData v-if="articles.length === 0" text="没有更多文章哦，waiting..." />
+    <NoData v-if="noData" text="没有更多文章哦，waiting..." />
+    <div class="more-action" v-if="noData">
+      是否要
+      <span class="remove-button" @click="handleRemoveTagOrCategory">删除</span>
+      当前{{ detail.cid ? '分类' : detail.tid ? '标签' : '' }}呢？
+    </div>
   </div>
 </template>
 
@@ -390,6 +439,17 @@ onMounted(() => {
         width: 100%;
         left: -1px;
         opacity: 1;
+      }
+    }
+  }
+  .more-action {
+    text-align: center;
+    .remove-button {
+      font-weight: 600;
+      color: #222;
+      cursor: pointer;
+      &:hover {
+        border-bottom: 1px solid #222;
       }
     }
   }

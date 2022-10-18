@@ -6,19 +6,9 @@ import {
 import { routes } from './routes'
 import hooks from './hooks'
 
-const vh = window.innerHeight
-
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-  scrollBehavior(to, from, savedPosition) {
-    if (from.name !== undefined) {
-      return {
-        top: vh,
-        behavior: 'smooth'
-      }
-    }
-  }
+  routes
 })
 
 Object.values(hooks).forEach((hook) => {

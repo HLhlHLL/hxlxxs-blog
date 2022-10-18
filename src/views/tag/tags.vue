@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ITag } from '@/types'
-import { inject, onMounted, ref } from 'vue'
+import { inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import NoData from '@/components/NoData/index.vue'
 
@@ -8,6 +8,7 @@ const global: any = inject('global')
 
 const router = useRouter()
 const tags = ref<ITag[]>([])
+const noData = ref<boolean>(false)
 
 const handleNavigateToArticle = (tag: ITag) => {
   router.push({
@@ -27,6 +28,13 @@ const getTags = async () => {
 onMounted(() => {
   getTags()
 })
+
+watch(
+  () => tags,
+  (newValue) => {
+    newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
+  }
+)
 </script>
 
 <template>
@@ -47,7 +55,7 @@ onMounted(() => {
         {{ tag.tagName }}
       </span>
     </div>
-    <NoData v-if="tags.length === 0" text="还没有添加标签，waiting..." />
+    <NoData v-if="noData" text="还没有添加标签，waiting..." />
   </div>
 </template>
 

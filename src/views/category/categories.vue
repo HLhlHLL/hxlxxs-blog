@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue'
+import { inject, onMounted, ref, watch } from 'vue'
 import { ICategory } from '@/types'
 import { formatCategoryTree } from '@/utils/shared'
 import CatalogTree from '@/components/CatalogTree/index.vue'
 import NoData from '@/components/NoData/index.vue'
 
-const categories = ref<ICategory[]>([])
-
 const global: any = inject('global')
+
+const categories = ref<ICategory[]>([])
+const noData = ref<boolean>(false)
 
 const getCategories = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/categories')
@@ -16,6 +17,13 @@ const getCategories = async () => {
 onMounted(() => {
   getCategories()
 })
+
+watch(
+  () => categories,
+  (newValue) => {
+    newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
+  }
+)
 </script>
 
 <template>
@@ -24,7 +32,7 @@ onMounted(() => {
     <div class="category-tree">
       <CatalogTree :categoryList="categories" />
     </div>
-    <NoData v-if="categories.length === 0" text="还没有添加分类，waiting..." />
+    <NoData v-if="noData" text="还没有添加分类，waiting..." />
   </div>
 </template>
 

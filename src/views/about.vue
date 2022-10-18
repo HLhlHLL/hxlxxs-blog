@@ -7,12 +7,12 @@ import { formatCommentTree } from '@/utils/shared'
 
 const global: any = inject('global')
 
-const text = ref<string>('# hello\r\n ## 本人前端新人一枚，期待你的来访！')
+const text = ref<string>('# hello\r\n ## 本人前端新人一枚，欢迎你的来访！')
 const comment = ref<IComment[]>([])
 
 const getCommentList = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/comments')
-  comment.value = formatCommentTree(data.results[0].aboutComment)
+  comment.value = formatCommentTree(data.results[0]?.aboutComment)
 }
 
 onBeforeMount(() => {

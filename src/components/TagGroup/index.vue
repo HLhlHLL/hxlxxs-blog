@@ -19,6 +19,7 @@ const emit = defineEmits(['handleTagChange'])
 const props = defineProps<PropsData>()
 const iptValue = ref<string>('')
 const tags = ref<ITag[]>([])
+const currentSelectedTag = ref<ITag>()
 const fold = ref<boolean>(true)
 const isExist = ref<boolean>(false)
 
@@ -34,7 +35,7 @@ const handleAddTag = () => {
   if (tags.value.every((tag) => tag.tagName !== iptValue.value)) {
     tags.value.push({
       tagName: iptValue.value,
-      tid: uuidv4(),
+      tid: isExist.value ? (currentSelectedTag.value as ITag)?.tid : uuidv4(),
       isExist: isExist.value
     })
     isExist.value = false
@@ -75,6 +76,7 @@ const handleCloseTag = (tag: any) => {
 }
 
 const handleSelectItem = (item: ITag) => {
+  currentSelectedTag.value = item
   iptValue.value = item.tagName
   isExist.value = true
   gsap.to('.tag-selector', {

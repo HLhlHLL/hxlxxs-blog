@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, onMounted, ref } from 'vue'
+import { inject, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser } from '@/store/user'
+import { useSiteInfoStore } from '@/store/siteinfo'
 import gsap from 'gsap'
 
 const global: any = inject('global')
 
 const router = useRouter()
 const userStore = useUser()
+const siteInfoStore = useSiteInfoStore()
 const archivesCount = ref<number>()
 const tagsCount = ref<number>()
 const categoriesCount = ref<number>()
@@ -84,30 +86,27 @@ const handleLogout = () => {
   router.push({ name: 'home' })
 }
 
-// 分类数量统计
-const getSiteInfo = async () => {
-  const { data: arc } = await global.$http.get(
-    '/api/1.1/classes/articles?limit=0&count=1'
-  )
-  archivesCount.value = arc.count
-  const { data: cate } = await global.$http.get(
-    '/api/1.1/classes/categories?limit=0&count=1'
-  )
-  tagsCount.value = cate.count
-  const { data: tag } = await global.$http.get(
-    '/api/1.1/classes/tags?limit=0&count=1'
-  )
-  categoriesCount.value = tag.count
-}
-
 onBeforeMount(() => {
-  getSiteInfo()
+  // 分类数量统计
+  siteInfoStore.getSiteInfo()
 })
 
 onMounted(() => {
   ifLogged.value =
     sessionStorage.getItem('sessionToken') === userStore.sessionToken
 })
+
+watch(
+  () => siteInfoStore,
+  (newValue) => {
+    archivesCount.value = newValue.archivesCount
+    tagsCount.value = newValue.tagsCount
+    categoriesCount.value = newValue.categoriesCount
+  },
+  {
+    deep: true
+  }
+)
 </script>
 
 <template>

@@ -11,6 +11,7 @@ import { ICategory, IContentArticle, ITag } from '@/types/index'
 import { mergeCategories } from '@/utils/shared'
 import { useRoute } from 'vue-router'
 import router from '@/router'
+import { useSiteInfoStore } from '@/store/siteinfo'
 
 type CompData = {
   article: IContentArticle
@@ -18,6 +19,7 @@ type CompData = {
 
 const global: any = inject('global')
 const route = useRoute()
+const siteInfoStore = useSiteInfoStore()
 const compData = reactive<CompData>({
   article: {} as IContentArticle
 })
@@ -98,15 +100,16 @@ const handleSubmitNewArticle = async () => {
     })
 
     await global.$http.post('/api/1.1/batch', {
-      requests: t.map((item) => ({
+      requests: t.map((_t) => ({
         method: 'POST',
         path: '/1.1/classes/tags',
         body: {
-          ...item
+          ..._t,
+          isExist: true
         }
       }))
     })
-
+    siteInfoStore.getSiteInfo()
     global.$message({
       message: 'yes，发布成功！！',
       type: 'success'
@@ -130,7 +133,7 @@ const handleEditArticle = async () => {
     category.value.length === 2
       ? category.value[1]
       : category.value[0] || article.category
-  const t = tags.value || article.tags
+  const t = tags.value.length > 0 ? tags.value : article.tags
 
   const oId = route.params.objectId
   try {
@@ -142,6 +145,7 @@ const handleEditArticle = async () => {
         abstract: abs,
         category: cat,
         tags: t,
+        tid: t.map((t) => t.tid),
         meta: {
           visitedTimes: article.meta.visitedTimes,
           wordCount: con.length,
@@ -151,8 +155,10 @@ const handleEditArticle = async () => {
     )
     await global.$http.put(`/api/1.1/classes/articles/${oId}`, {
       title: tit,
-      content: con,
       abstract: abs,
+      category: cat,
+      tags: t,
+      tid: t.map((t) => t.tid),
       meta: {
         visitedTimes: article.meta.visitedTimes,
         wordCount: con.length,

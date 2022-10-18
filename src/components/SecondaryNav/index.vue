@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useElementStore } from '@/store/element'
 import { watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { pathList, NavPath } from './data'
+import { pathList, NavPath } from '@/components/Navigation/data'
+import { useElementStore } from '@/store/element'
 
 const router = useRouter()
 const route = useRoute()
@@ -37,7 +37,7 @@ watch(
 </script>
 
 <template>
-  <div class="navigation animate__animated animate__fadeIn">
+  <div class="secondary-nav">
     <ul class="nav-list">
       <li
         :class="['nav-item', path.active ? 'nav-item-active' : '']"
@@ -45,7 +45,6 @@ watch(
         :key="path.pathName"
         @click="handleNavigate(path)"
       >
-        <i :class="['iconfont', `icon-${path.pathIcon}`]"></i>
         {{ path.text }}
       </li>
     </ul>
@@ -53,50 +52,44 @@ watch(
 </template>
 
 <style scoped lang="scss">
-.navigation {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 240px;
-  padding: 20px 0;
-  margin-bottom: 10px;
-  font-size: 14px;
-  background-color: #fff;
-  box-sizing: border-box;
+.secondary-nav {
   .nav-list {
-    list-style: none;
+    display: flex;
+    height: 40px;
+    line-height: 40px;
     margin: 0;
     padding: 0;
+    list-style: none;
+    color: #fff;
     .nav-item {
       position: relative;
-      width: 100%;
-      height: 36px;
-      line-height: 26px;
-      padding: 5px 20px;
-      box-sizing: border-box;
-      .iconfont {
-        font-size: 14px;
-        margin-right: 5px;
+      width: calc(100% / 7);
+      height: 100%;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s linear;
+      &:nth-child(n + 2)::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -1px;
+        transform: translateY(-50%);
+        display: block;
+        width: 2px;
+        height: 21px;
+        background-color: #666;
+        box-sizing: border-box;
+      }
+      &:hover {
+        background-color: #fff;
+        color: #222;
+        font-weight: 600;
       }
     }
-    .nav-item:hover {
-      cursor: pointer;
-      background-color: $bg-color;
-    }
-    .nav-item-active {
-      background-color: $bg-color;
-    }
-    .nav-item-active::after {
-      background: #bbb;
-      border-radius: 50%;
-      content: ' ';
-      height: 6px;
-      margin-top: -3px;
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      width: 6px;
-    }
+  }
+  .nav-item-active {
+    color: #222;
+    background-color: #fff;
   }
 }
 </style>

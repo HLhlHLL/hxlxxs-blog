@@ -127,7 +127,7 @@ defineExpose({
   <div class="category-selector">
     <div class="selector-lv1">
       <div class="selected">
-        <span>一级分类：</span>
+        <span>父级分类：</span>
         <div class="selected-value">
           <span class="hide">{{ level1IptValue || props.placeholder }}</span>
           <input
@@ -157,14 +157,14 @@ defineExpose({
     </div>
     <div class="selector-lv2">
       <div class="selected">
-        <span>二级分类：</span>
+        <span>子级分类：</span>
         <div class="selected-value">
           <span class="hide">{{ level2IptValue || props.placeholder }}</span>
           <input
             type="text"
             v-model.trim="level2IptValue"
             :placeholder="
-              !level1IptValue ? '请先选择一级分类' : '请输入自定义分类名称'
+              !level1IptValue ? '请先选择父级分类' : '请输入自定义分类名称'
             "
             :disabled="!level1IptValue"
             @change="handleIptValueChange(2)"
