@@ -129,11 +129,7 @@ defineExpose({
       <div class="selected">
         <div class="selected-value">
           <span class="hide">{{ iptValue || props.placeholder }}</span>
-          <input
-            type="text"
-            v-model.trim="iptValue"
-            :placeholder="props.placeholder"
-          />
+          <input type="text" v-model.trim="iptValue" :placeholder="props.placeholder" />
         </div>
         <div
           :class="['selector-button', fold ? '' : 'rotating']"
@@ -159,11 +155,7 @@ defineExpose({
     </div>
   </div>
   <ul class="tags">
-    <Tag
-      v-for="tag in tags"
-      :key="tag.tid"
-      @handleCloseTag="handleCloseTag(tag)"
-    >
+    <Tag v-for="tag in tags" :key="tag.tid" @handleCloseTag="handleCloseTag(tag)">
       {{ tag.tagName }}
     </Tag>
   </ul>
@@ -233,6 +225,7 @@ defineExpose({
       overflow-y: overlay;
       overflow-x: hidden;
       user-select: none;
+      -webkit-user-select: none;
       .selector-item {
         text-align: center;
         cursor: pointer;

@@ -253,6 +253,7 @@ watch(
   margin-top: 40px;
   background-color: #f5f5f5;
   border-left: 4px solid #555;
+  word-break: break-all;
   ul {
     padding: 20px;
     margin: 0;

@@ -163,9 +163,7 @@ defineExpose({
           <input
             type="text"
             v-model.trim="level2IptValue"
-            :placeholder="
-              !level1IptValue ? '请先选择父级分类' : '请输入自定义分类名称'
-            "
+            :placeholder="!level1IptValue ? '请先选择父级分类' : '请输入自定义分类名称'"
             :disabled="!level1IptValue"
             @change="handleIptValueChange(2)"
           />
@@ -230,6 +228,7 @@ defineExpose({
       overflow-y: overlay;
       overflow-x: hidden;
       user-select: none;
+      -webkit-user-select: none;
       .selector-item {
         text-align: center;
         cursor: pointer;

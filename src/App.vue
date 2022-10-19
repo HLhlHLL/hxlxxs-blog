@@ -3,30 +3,25 @@ import { inject, onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { useElementStore } from './store/element'
 import { basicCategories } from '@/mock/categories'
+import { loadFull } from 'tsparticles'
+import particles from '@/json/particles.json'
 import Navigation from '@/components//Navigation/index.vue'
 import SecondaryNav from '@/components//SecondaryNav/index.vue'
 import SiteOverview from '@/components/SiteOverview/index.vue'
 import TopBar from '@/components/TopBar/index.vue'
+import Music from '@/components/Music/index.vue'
 
 const global: any = inject('global')
 const elementStore = useElementStore()
 const headerRef = ref<HTMLElement | null>(null)
 const headerHeight = ref<number>(0)
+const options = ref<any>(particles)
 
-onMounted(() => {
-  gsap.to('.icon-down', {
-    y: 15,
-    ease: 'power1.in',
-    repeat: Infinity,
-    yoyo: true,
-    duration: 0.8,
-    opacity: 0.2
-  })
+const particlesInit = async (engine: any) => {
+  await loadFull(engine)
+}
 
-  setTimeout(() => {
-    getHeaderHeight()
-  }, 300)
-})
+const particlesLoaded = async (container: any) => {}
 
 const getHeaderHeight = () => {
   if (headerRef.value) {
@@ -48,6 +43,21 @@ const handleScrollHeader = () => {
     behavior: 'smooth'
   })
 }
+
+onMounted(() => {
+  gsap.to('.icon-down', {
+    y: 15,
+    ease: 'power1.in',
+    repeat: Infinity,
+    yoyo: true,
+    duration: 0.8,
+    opacity: 0.2
+  })
+
+  setTimeout(() => {
+    getHeaderHeight()
+  }, 300)
+})
 
 const setBasicCate = async () => {
   const res = await global.$http.post('/api/1.1/batch', {
@@ -93,6 +103,13 @@ const setBasicCate = async () => {
     </div>
   </div>
   <div class="footer"></div>
+  <Particles
+    id="tsparticles"
+    :particlesInit="particlesInit"
+    :particlesLoaded="particlesLoaded"
+    :options="options"
+  />
+  <Music />
   <TopBar />
 </template>
 
@@ -104,6 +121,7 @@ const setBasicCate = async () => {
   width: 100%;
   height: 100%;
   background-color: #f5f7f9;
+  z-index: 1;
   .header-title {
     position: absolute;
     top: 50px;
@@ -116,8 +134,7 @@ const setBasicCate = async () => {
     text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
   }
   .tracking-in-expand {
-    -webkit-animation: tracking-in-expand 0.7s
-      cubic-bezier(0.215, 0.61, 0.355, 1) both;
+    -webkit-animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
     animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
   }
   @-webkit-keyframes tracking-in-expand {
@@ -175,6 +192,8 @@ const setBasicCate = async () => {
 }
 .main {
   // min-width: 1300px;
+  position: relative;
+  z-index: 1;
   .main-inner {
     display: flex;
     justify-content: space-between;
@@ -243,6 +262,9 @@ const setBasicCate = async () => {
         width: 100%;
       }
     }
+  }
+  .music {
+    display: none;
   }
 }
 </style>

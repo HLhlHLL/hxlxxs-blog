@@ -71,6 +71,7 @@ const handleConfirm = () => {
       font-size: 20px;
       border-bottom: 1px solid #999;
       user-select: none;
+      -webkit-user-select: none;
     }
     .content {
       padding: 15px 30px;

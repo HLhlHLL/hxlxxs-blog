@@ -92,8 +92,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  ifLogged.value =
-    sessionStorage.getItem('sessionToken') === userStore.sessionToken
+  ifLogged.value = sessionStorage.getItem('sessionToken') === userStore.sessionToken
 })
 
 watch(
@@ -130,11 +129,7 @@ watch(
       </form>
     </div>
     <div class="site-box">
-      <i
-        class="iconfont icon-log-out"
-        v-if="ifLogged"
-        @click="handleLogout"
-      ></i>
+      <i class="iconfont icon-log-out" v-if="ifLogged" @click="handleLogout"></i>
       <div class="avatar" @click="handleAddArticle">
         <img src="@/assets/images/avatar.jpg" alt="hxlxx" />
       </div>
@@ -160,11 +155,7 @@ watch(
           <span>链接</span>
         </div>
         <div class="link-items">
-          <a
-            href="https://github.com/HLhlHLL/hxlxxs-blog/tree/master"
-            target="_blank"
-            class="link"
-          >
+          <a href="https://github.com/HLhlHLL/hxlxxs-blog/tree/master" target="_blank" class="link">
             <i class="iconfont icon-github"></i>
             <span>github</span>
           </a>

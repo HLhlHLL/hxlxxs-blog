@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref, inject } from 'vue'
+import { reactive, onBeforeMount, ref, inject, watch } from 'vue'
 import { IArticle } from '@/types'
 import { useArticlesStore } from '@/store/articles'
 import Pagination from '@/components/Pagination/index.vue'
@@ -17,6 +17,7 @@ const pagination = reactive({
 })
 const loading = ref<boolean>(true)
 const articleStore = useArticlesStore()
+const noData = ref<boolean>(false)
 
 const handleGetCurrentPage = (page: number) => {
   pagination.currentPage = page
@@ -33,9 +34,7 @@ const handleGetCurrentPage = (page: number) => {
 const getArticleList = async () => {
   const { data } = await global.$http.get('/api/1.1/classes/articles')
   res = data.results.sort((pre: any, next: any) => {
-    return (
-      new Date(next.createdAt).getTime() - new Date(pre.createdAt).getTime()
-    )
+    return new Date(next.createdAt).getTime() - new Date(pre.createdAt).getTime()
   })
   articleList.value = res.slice(0, pagination.size)
   pagination.total = res.length
@@ -46,6 +45,13 @@ const getArticleList = async () => {
 onBeforeMount(() => {
   getArticleList()
 })
+
+watch(
+  () => articleList,
+  (newValue) => {
+    newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
+  }
+)
 </script>
 
 <template>
@@ -58,10 +64,7 @@ onBeforeMount(() => {
       :key="article.aid"
       :index="index"
     />
-    <NoData
-      v-if="articleList.length === 0"
-      text="这个人很懒，还什么都没写哦。。。"
-    />
+    <NoData v-if="noData" text="这个人很懒，还什么都没写哦。。。" />
     <Pagination
       button-color="#222"
       v-if="pagination.total > 5"

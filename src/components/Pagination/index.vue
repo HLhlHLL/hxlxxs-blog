@@ -23,10 +23,8 @@ const getButtonStyle = (page: number) => {
 defineEmits(['getCurrentPage'])
 
 const startAndEnd = computed(() => {
-  let start =
-    props.pagination.currentPage - Math.floor(props.pagination.range / 2)
-  let end =
-    props.pagination.currentPage + Math.floor(props.pagination.range / 2)
+  let start = props.pagination.currentPage - Math.floor(props.pagination.range / 2)
+  let end = props.pagination.currentPage + Math.floor(props.pagination.range / 2)
   if (start < 2) {
     start = 1
     end = props.pagination.range
@@ -41,9 +39,7 @@ const startAndEnd = computed(() => {
   }
 })
 
-const totalPage = computed(() =>
-  Math.ceil(props.pagination.total / props.pagination.size)
-)
+const totalPage = computed(() => Math.ceil(props.pagination.total / props.pagination.size))
 </script>
 
 <template>
@@ -109,6 +105,7 @@ span {
   line-height: 25px;
   text-align: center;
   user-select: none;
+  -webkit-user-select: none;
   color: #555;
 }
 .page {
