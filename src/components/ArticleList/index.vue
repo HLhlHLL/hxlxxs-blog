@@ -21,8 +21,7 @@ const global: any = inject('global')
 const currentYear = ref<number>(new Date().getFullYear())
 const articles = ref<IArticle[]>([])
 const detail = reactive({
-  label:
-    (route.params.tag as string) || (route.params.category as string) || '',
+  label: (route.params.tag as string) || (route.params.category as string) || '',
   tid: route.params.tid as string,
   cid: route.params.cid as string
 })
@@ -70,18 +69,12 @@ const handleCancel = () => {
 const handleConfirm = async () => {
   if (articles.value.length > 0) {
     try {
-      await global.$http.delete(
-        `/api/1.1/classes/articles/${toRemoveArticle.value!.objectId}`
-      )
+      await global.$http.delete(`/api/1.1/classes/articles/${toRemoveArticle.value!.objectId}`)
       const { data } = await global.$http.get(
-        `/api/1.1/classes/contentArticle?where={"aid": "${
-          toRemoveArticle.value!.aid
-        }"}`
+        `/api/1.1/classes/contentArticle?where={"aid": "${toRemoveArticle.value!.aid}"}`
       )
       const contentArticle = data.results[0]
-      await global.$http.delete(
-        `/api/1.1/classes/contentArticle/${contentArticle.objectId}`
-      )
+      await global.$http.delete(`/api/1.1/classes/contentArticle/${contentArticle.objectId}`)
       getArticleList()
       getArticleCount()
       global.$message({
@@ -191,10 +184,7 @@ const getArticleCount = async () => {
 
 // 请求分页数据
 const getArticleList = async () => {
-  const skip =
-    pagination.currentPage > 1
-      ? (pagination.currentPage - 1) * pagination.size
-      : 0
+  const skip = pagination.currentPage > 1 ? (pagination.currentPage - 1) * pagination.size : 0
   if (detail.tid) {
     const { data } = await global.$http.get(
       `/api/1.1/classes/articles?where={"$and":[{"tid": "${
@@ -203,9 +193,7 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${
-        pagination.size
-      }&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   } else if (detail.cid) {
@@ -216,9 +204,7 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${
-        pagination.size
-      }&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}]}&order=-createdAt&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   } else {
@@ -227,9 +213,7 @@ const getArticleList = async () => {
         currentYear.value
       }-01-01T00:00:00.000Z"},"$lt":{"__type":"Date","iso":"${
         currentYear.value + 1
-      }-01-01T00:00:00.000Z"}}}&order=-createdAt&limit=${
-        pagination.size
-      }&skip=${skip}`
+      }-01-01T00:00:00.000Z"}}}&order=-createdAt&limit=${pagination.size}&skip=${skip}`
     )
     articles.value = data.results
   }
@@ -253,9 +237,7 @@ watch(
     <div class="article-list-content">
       <div class="payload" v-if="props.payload">
         <span>{{ props.payload }}</span>
-        <span class="category-name" v-if="detail.label">{{
-          detail.label
-        }}</span>
+        <span class="category-name" v-if="detail.label">{{ detail.label }}</span>
       </div>
       <div class="year">
         <span
@@ -286,15 +268,8 @@ watch(
           <div class="item-title">{{ article.title }}</div>
         </div>
         <div class="actions" v-permission>
-          <button class="edit-button" @click.stop="handleEditArticle(article)">
-            编辑
-          </button>
-          <button
-            class="remove-button"
-            @click.stop="handleRemoveArticle(article)"
-          >
-            删除
-          </button>
+          <button class="edit-button" @click.stop="handleEditArticle(article)">编辑</button>
+          <button class="remove-button" @click.stop="handleRemoveArticle(article)">删除</button>
         </div>
       </div>
     </div>
@@ -381,6 +356,7 @@ watch(
       line-height: 2;
       opacity: 0;
       cursor: pointer;
+      box-sizing: border-box;
       animation: showup 0.5s ease-out forwards;
       .item-content {
         .item-meta {

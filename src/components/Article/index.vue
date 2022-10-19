@@ -52,33 +52,25 @@ const handleNavigateToArticleList = (category: ICategory) => {
             <span class="text">发布于</span>
             <span class="date">
               <time
-                :title="`发布于: ${dateFormat(
-                  props.article.createdAt || ''
-                ).format('YYYY-MM-DD')} \/ updated: ${dateFormat(
-                  props.article.updatedAt || ''
-                ).format('YYYY-MM-DD')}`"
+                :title="`发布于: ${dateFormat(props.article.createdAt || '').format(
+                  'YYYY-MM-DD'
+                )} \/ updated: ${dateFormat(props.article.updatedAt || '').format('YYYY-MM-DD')}`"
               >
-                {{
-                  dateFormat(props.article.createdAt).format('YYYY-MM-DD') || ''
-                }}
+                {{ dateFormat(props.article.createdAt).format('YYYY-MM-DD') || '' }}
               </time>
             </span>
           </span>
           <span class="article-meta-item separator">
             <i class="iconfont icon-folder"></i>
             <span class="text">分类</span>
-            <span
-              class="category"
-              @click="handleNavigateToArticleList(props.article.category)"
-              >{{ props.article.category?.categoryName || '' }}</span
-            >
+            <span class="category" @click="handleNavigateToArticleList(props.article.category)">{{
+              props.article.category?.categoryName || ''
+            }}</span>
           </span>
           <span class="article-meta-item separator">
             <i class="iconfont icon-eye"></i>
             <span class="text">阅读次数:</span>
-            <span class="visited">{{
-              props.article.meta?.visitedTimes || 0
-            }}</span>
+            <span class="visited">{{ props.article.meta?.visitedTimes || 0 }}</span>
           </span>
           <span class="article-meta-item separator">
             <i class="iconfont icon-message"></i>
@@ -89,16 +81,12 @@ const handleNavigateToArticleList = (category: ICategory) => {
           <span class="article-meta-item">
             <i class="iconfont icon-wordfile"></i>
             <span class="text">本文字数:</span>
-            <span class="number-of-words">{{
-              props.article.meta?.wordCount || 0
-            }}</span>
+            <span class="number-of-words">{{ props.article.meta?.wordCount || 0 }}</span>
           </span>
           <span class="article-meta-item separator">
             <i class="iconfont icon-clock"></i>
             <span class="text">阅读时长≈</span>
-            <span class="duration"
-              >{{ props.article.meta?.costTime || 0 }}分钟</span
-            >
+            <span class="duration">{{ props.article.meta?.costTime || 0 }}分钟</span>
           </span>
         </div>
       </div>
@@ -211,11 +199,11 @@ const handleNavigateToArticleList = (category: ICategory) => {
 }
 .article {
   width: 100%;
-  padding: 20px;
   box-sizing: border-box;
   .abstract {
-    font-size: 18px;
     margin-bottom: 40px;
+    font-size: 18px;
+    text-align: center;
   }
   .more {
     text-align: center;

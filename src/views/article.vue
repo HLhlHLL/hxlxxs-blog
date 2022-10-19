@@ -71,20 +71,15 @@ const getArticleInfo = async () => {
     const { data: res2 } = await global.$http.get(
       `/api/1.1/classes/articles?where={"cid": "${compData.article.cid}"}?limit=5`
     )
-    relatedArticle.value = res2.results.filter(
-      (r: any) => r.aid !== compData.article.aid
-    )
+    relatedArticle.value = res2.results.filter((r: any) => r.aid !== compData.article.aid)
 
-    await global.$http.put(
-      `/api/1.1/classes/contentArticle/${compData.article.objectId}`,
-      {
-        meta: {
-          visitedTimes: compData.article.meta.visitedTimes + 1,
-          wordCount: compData.article.meta.wordCount,
-          costTime: compData.article.meta.costTime
-        }
+    await global.$http.put(`/api/1.1/classes/contentArticle/${compData.article.objectId}`, {
+      meta: {
+        visitedTimes: compData.article.meta.visitedTimes + 1,
+        wordCount: compData.article.meta.wordCount,
+        costTime: compData.article.meta.costTime
       }
-    )
+    })
     const { data } = await global.$http.get(
       `/api/1.1/classes/articles?where={"aid": "${compData.article.aid}"}`
     )
@@ -141,9 +136,7 @@ watch(
     <div class="text">相关文章</div>
     <ul v-if="relatedArticle.length > 0">
       <li class="title" v-for="rel in relatedArticle" :key="rel.aid">
-        <span class="link" @click="handleToRelatedArticle(rel)">{{
-          rel.title
-        }}</span>
+        <span class="link" @click="handleToRelatedArticle(rel)">{{ rel.title }}</span>
       </li>
     </ul>
     <div class="related-blank" v-else>
@@ -157,10 +150,7 @@ watch(
         {{ articleStore.articleList[currentArticleIndex - 1]?.title }}
       </span>
     </div>
-    <div
-      class="next-article"
-      v-if="currentArticleIndex < articleStore.articleList.length - 1"
-    >
+    <div class="next-article" v-if="currentArticleIndex < articleStore.articleList.length - 1">
       <span @click="handleChangeArticle('next')">
         {{ articleStore.articleList[currentArticleIndex + 1]?.title }}
         <i class="iconfont icon-right"></i>
@@ -180,9 +170,7 @@ watch(
       <li class="copyright-license">
         <strong>版权声明:</strong>
         本博客所有文章除特别声明外，均采用
-        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-          BY-NC-SA
-        </a>
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"> BY-NC-SA </a>
         许可协议。转载请注明出处！
       </li>
     </ul>
@@ -206,7 +194,6 @@ watch(
 <style scoped lang="scss">
 .article {
   width: 100%;
-  padding: 20px;
   box-sizing: border-box;
 }
 .divider {
