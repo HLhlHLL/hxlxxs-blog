@@ -34,7 +34,7 @@ export const formatCommentTree = (comment: IComment[]) => {
   // 主评论按时间升序排列，子评论不变
   res.sort((pre: IComment, next: IComment) => {
     return (
-      new Date(next.createdAt).getTime() - new Date(pre.createdAt).getTime()
+      new Date(next.publishTime).getTime() - new Date(pre.publishTime).getTime()
     )
   })
   // 将子评论插入对应主评论

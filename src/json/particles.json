@@ -24,12 +24,12 @@
    },
    "particles": {
       "color": {
-         "value": "#000"
+         "value": "random"
       },
       "links": {
          "color": "#000",
          "distance": 100,
-         "enable": true,
+         "enable": false,
          "opacity": 0.5,
          "width": 1
       },
@@ -41,7 +41,7 @@
          "enable": true,
          "outMode": "bounce",
          "random": true,
-         "speed": 3,
+         "speed": 2,
          "straight": false
       },
       "number": {

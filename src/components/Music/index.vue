@@ -29,7 +29,7 @@ window.addEventListener('scroll', function () {
       marginheight="0"
       width="330"
       height="100"
-      src="//music.163.com/outchain/player?type=0&id=6831180679&auto=1&height=90"
+      src="//music.163.com/outchain/player?type=0&id=6831180679&auto=0&height=90"
     ></iframe>
   </div>
 </template>

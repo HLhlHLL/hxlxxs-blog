@@ -11,8 +11,8 @@ const text = ref<string>('# hello\r\n ## 本人前端新人一枚，欢迎你的
 const comment = ref<IComment[]>([])
 
 const getCommentList = async () => {
-  const { data } = await global.$http.get('/api/1.1/classes/comments')
-  comment.value = formatCommentTree(data.results[0]?.aboutComment)
+  const { data } = await global.$http.get('/api/1.1/classes/about_comment')
+  comment.value = formatCommentTree(data.results)
 }
 
 onBeforeMount(() => {

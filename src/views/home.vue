@@ -22,11 +22,11 @@ const noData = ref<boolean>(false)
 const handleGetCurrentPage = (page: number) => {
   pagination.currentPage = page
   if (page === 1) {
-    articleList.value = res.slice(0, pagination.size)
+    articleList.value = articleStore.articleList.slice(0, pagination.size)
   } else {
-    articleList.value = res.slice(
-      (pagination.currentPage - 1) * pagination.size + 1,
-      pagination.currentPage * pagination.size + 1
+    articleList.value = articleStore.articleList.slice(
+      (pagination.currentPage - 1) * pagination.size,
+      pagination.currentPage * pagination.size
     )
   }
 }

@@ -89,7 +89,7 @@ export const commentGenerator = (
     content,
     userName: userName ? userName : 'anonymous',
     subComments: [],
-    createdAt: new Date().toISOString(),
+    publishTime: new Date().toISOString(),
     showSubComment: false,
     to
   }

@@ -53,7 +53,7 @@ class HttpRequest {
         if (Object.keys(this.queue).length) {
           // 此处关闭 loading
         }
-        return Promise.reject(error)
+        return Promise.reject(error.response)
       }
     )
   }

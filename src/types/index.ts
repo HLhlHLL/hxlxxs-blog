@@ -26,7 +26,7 @@ export interface IComment {
   subComments?: IComment[]
   uid?: string
   userName?: string
-  createdAt: string
+  publishTime: string
   timeAgo?: string
   showSubComment?: boolean
   to: IComment

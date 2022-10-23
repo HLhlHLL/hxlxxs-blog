@@ -276,7 +276,7 @@ watch(
     <div class="footer">
       <Pagination
         button-color="#222"
-        v-if="articles.length > 5"
+        v-if="articleStore.articleList.length > 5"
         :pagination="pagination"
         @getCurrentPage="handleGetCurrentPage"
       />
