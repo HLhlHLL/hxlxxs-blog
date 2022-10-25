@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { pathList, NavPath } from '@/components/Navigation/data'
+import { pathList, NavPath } from '@/components/Navigation/path'
 import { useElementStore } from '@/store/element'
 
 const router = useRouter()

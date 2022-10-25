@@ -5,18 +5,16 @@ import Comments from '@/components/Comments/index.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle, IComment, ITag } from '@/types'
 import { formatCommentTree } from '@/utils/shared'
-import { useArticlesStore } from '@/store/articles'
 
 const route = useRoute()
 const router = useRouter()
-const articleStore = useArticlesStore()
 const global: any = inject('global')
+
 const compData = reactive<any>({
   article: {}
 })
 const comment = ref<IComment[]>([])
 const loading = ref<boolean>(true)
-const currentArticleIndex = ref<number>(Number(route.params.index))
 const relatedArticle = ref<IArticle[]>([])
 
 const href = ref<string>('')
@@ -31,32 +29,15 @@ const handleClickTag = (tag: ITag) => {
   })
 }
 
-// 跳转到对应索引的文章
-const turnToAnotherArticle = () => {
+// 跳转到相关文章
+const handleToRelatedArticle = (rel: IArticle) => {
   router.replace({
     name: 'article',
     params: {
-      aid: articleStore.articleList[currentArticleIndex.value].aid,
-      index: currentArticleIndex.value,
-      objectId: articleStore.articleList[currentArticleIndex.value].objectId
+      aid: rel.aid,
+      objectId: rel.objectId
     }
   })
-}
-// 跳转到下一篇或上一篇
-const handleChangeArticle = (type: string) => {
-  if (type === 'previous') {
-    --currentArticleIndex.value
-    turnToAnotherArticle()
-  } else if (type === 'next') {
-    ++currentArticleIndex.value
-    turnToAnotherArticle()
-  }
-}
-// 跳转到相关文章
-const handleToRelatedArticle = (rel: IArticle) => {
-  const res = articleStore.articleList.findIndex((a) => a.aid === rel.aid)
-  currentArticleIndex.value = res
-  turnToAnotherArticle()
 }
 
 const getArticleInfo = async () => {
@@ -71,15 +52,20 @@ const getArticleInfo = async () => {
     const { data: res2 } = await global.$http.get(
       `/api/1.1/classes/articles?where={"cid": "${compData.article.cid}"}?limit=5`
     )
-    relatedArticle.value = res2.results.filter((r: any) => r.aid !== compData.article.aid)
+    relatedArticle.value = res2.results.filter(
+      (r: any) => r.aid !== compData.article.aid
+    )
 
-    await global.$http.put(`/api/1.1/classes/contentArticle/${compData.article.objectId}`, {
-      meta: {
-        visitedTimes: compData.article.meta.visitedTimes + 1,
-        wordCount: compData.article.meta.wordCount,
-        costTime: compData.article.meta.costTime
+    await global.$http.put(
+      `/api/1.1/classes/contentArticle/${compData.article.objectId}`,
+      {
+        meta: {
+          visitedTimes: compData.article.meta.visitedTimes + 1,
+          wordCount: compData.article.meta.wordCount,
+          costTime: compData.article.meta.costTime
+        }
       }
-    })
+    )
     const { data } = await global.$http.get(
       `/api/1.1/classes/articles?where={"aid": "${compData.article.aid}"}`
     )
@@ -136,25 +122,13 @@ watch(
     <div class="text">相关文章</div>
     <ul v-if="relatedArticle.length > 0">
       <li class="title" v-for="rel in relatedArticle" :key="rel.aid">
-        <span class="link" @click="handleToRelatedArticle(rel)">{{ rel.title }}</span>
+        <span class="link" @click="handleToRelatedArticle(rel)">
+          {{ rel.title }}
+        </span>
       </li>
     </ul>
     <div class="related-blank" v-else>
       <span>暂无更多相关文章</span>
-    </div>
-  </div>
-  <div class="article-nav">
-    <div class="pre-article" v-if="currentArticleIndex >= 1">
-      <span @click="handleChangeArticle('previous')">
-        <i class="iconfont icon-left"></i>
-        {{ articleStore.articleList[currentArticleIndex - 1]?.title }}
-      </span>
-    </div>
-    <div class="next-article" v-if="currentArticleIndex < articleStore.articleList.length - 1">
-      <span @click="handleChangeArticle('next')">
-        {{ articleStore.articleList[currentArticleIndex + 1]?.title }}
-        <i class="iconfont icon-right"></i>
-      </span>
     </div>
   </div>
   <div class="copyright">
@@ -170,7 +144,9 @@ watch(
       <li class="copyright-license">
         <strong>版权声明:</strong>
         本博客所有文章除特别声明外，均采用
-        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"> BY-NC-SA </a>
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          BY-NC-SA
+        </a>
         许可协议。转载请注明出处！
       </li>
     </ul>
@@ -287,27 +263,6 @@ watch(
     }
     .social-item:hover {
       color: #222;
-    }
-  }
-}
-.article-nav {
-  position: relative;
-  width: 100%;
-  margin: 40px 0;
-  padding-top: 10px;
-  border-top: 1px solid #eee;
-  .pre-article {
-    position: absolute;
-    left: 0;
-  }
-  .next-article {
-    position: absolute;
-    right: 0;
-  }
-  span {
-    cursor: pointer;
-    &:hover {
-      color: #999;
     }
   }
 }

@@ -35,8 +35,8 @@ const handleValueChange = (value: ICategory[]) => {
   category.value = value
 }
 
-const handleTagChange = (tagList: ITag[]) => {
-  tags.value = tagList
+const handleTagChange = (value: ITag[]) => {
+  tags.value = value
 }
 
 const tagGroupRef = ref<null | (InstanceType<typeof TagGroup> & ITagGroup)>(

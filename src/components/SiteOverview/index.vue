@@ -3,20 +3,29 @@ import { inject, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser } from '@/store/user'
 import { useSiteInfoStore } from '@/store/siteinfo'
+import { Path, pathList as data } from './path'
 import gsap from 'gsap'
+import { useElementStore } from '@/store/element'
 
 const global: any = inject('global')
-
 const router = useRouter()
 const userStore = useUser()
 const siteInfoStore = useSiteInfoStore()
-const archivesCount = ref<number>()
-const tagsCount = ref<number>()
-const categoriesCount = ref<number>()
+const elementStore = useElementStore()
+
+const pathList = ref<Path[]>(data)
 const loginRef = ref<HTMLElement | null>(null)
 const username = ref<string>('')
 const password = ref<string>('')
 const ifLogged = ref<boolean>(false)
+
+const handleNavigate = (path: Path) => {
+  router.push({ path: path.pathName })
+  window.scrollTo({
+    top: elementStore.offsetTop,
+    behavior: 'smooth'
+  })
+}
 
 let fold = true
 const handleAddArticle = () => {
@@ -92,15 +101,22 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  ifLogged.value = sessionStorage.getItem('sessionToken') === userStore.sessionToken
+  ifLogged.value =
+    sessionStorage.getItem('sessionToken') === userStore.sessionToken
 })
 
 watch(
   () => siteInfoStore,
   (newValue) => {
-    archivesCount.value = newValue.archivesCount
-    tagsCount.value = newValue.tagsCount
-    categoriesCount.value = newValue.categoriesCount
+    pathList.value.forEach((path) => {
+      if (path.pathName === '/archives') {
+        path.pathCount = newValue.archivesCount
+      } else if (path.pathName === '/tag') {
+        path.pathCount = newValue.tagsCount
+      } else if (path.pathName === '/category') {
+        path.pathCount = newValue.categoriesCount
+      }
+    })
   },
   {
     deep: true
@@ -129,25 +145,26 @@ watch(
       </form>
     </div>
     <div class="site-box">
-      <i class="iconfont icon-log-out" v-if="ifLogged" @click="handleLogout"></i>
+      <i
+        class="iconfont icon-log-out"
+        v-if="ifLogged"
+        @click="handleLogout"
+      ></i>
       <div class="avatar" @click="handleAddArticle">
         <img src="@/assets/images/avatar.jpg" alt="hxlxx" />
       </div>
       <div class="author">hxlxx</div>
       <div class="description">我把這陳年風褸，送贈你解咒</div>
       <div class="state">
-        <router-link class="state-item" to="/archives">
-          <span class="counter">{{ archivesCount }}</span>
-          <span class="text">日志</span>
-        </router-link>
-        <router-link class="state-item" to="/tag">
-          <span class="counter">{{ tagsCount }}</span>
-          <span class="text">标签</span>
-        </router-link>
-        <router-link class="state-item" to="/category">
-          <span class="counter">{{ categoriesCount }}</span>
-          <span class="text">分类</span>
-        </router-link>
+        <div
+          class="state-item"
+          v-for="path in pathList"
+          :key="path.pathName"
+          @click="handleNavigate(path)"
+        >
+          <span class="counter">{{ path.pathCount }}</span>
+          <span class="text">{{ path.text }}</span>
+        </div>
       </div>
       <div class="links">
         <div class="label">
@@ -155,7 +172,11 @@ watch(
           <span>链接</span>
         </div>
         <div class="link-items">
-          <a href="https://github.com/HLhlHLL/hxlxxs-blog/tree/master" target="_blank" class="link">
+          <a
+            href="https://github.com/HLhlHLL/hxlxxs-blog/tree/master"
+            target="_blank"
+            class="link"
+          >
             <i class="iconfont icon-github"></i>
             <span>github</span>
           </a>

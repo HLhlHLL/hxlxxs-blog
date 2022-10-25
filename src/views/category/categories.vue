@@ -22,6 +22,9 @@ watch(
   () => categories,
   (newValue) => {
     newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
+  },
+  {
+    deep: true
   }
 )
 </script>

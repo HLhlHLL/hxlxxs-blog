@@ -64,7 +64,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/views/search.vue')
       },
       {
-        path: 'article/:aid/:index/:objectId?',
+        path: 'article/:aid/:objectId?',
         name: 'article',
         component: () => import('@/views/article.vue')
       },

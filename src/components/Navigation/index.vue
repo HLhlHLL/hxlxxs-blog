@@ -2,7 +2,7 @@
 import { useElementStore } from '@/store/element'
 import { watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { pathList, NavPath } from './data'
+import { pathList, NavPath } from './path'
 
 const router = useRouter()
 const route = useRoute()

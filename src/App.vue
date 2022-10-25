@@ -59,20 +59,20 @@ onMounted(() => {
   }, 300)
 })
 
-const setBasicCate = async () => {
-  const res = await global.$http.post('/api/1.1/batch', {
-    requests: basicCategories.map((c) => {
-      return {
-        method: 'POST',
-        path: '/1.1/classes/categories',
-        body: {
-          ...c
-        }
-      }
-    })
-  })
-  console.log(res)
-}
+// const setBasicCate = async () => {
+//   const res = await global.$http.post('/api/1.1/batch', {
+//     requests: basicCategories.map((c) => {
+//       return {
+//         method: 'POST',
+//         path: '/1.1/classes/categories',
+//         body: {
+//           ...c
+//         }
+//       }
+//     })
+//   })
+//   console.log(res)
+// }
 </script>
 
 <template>
@@ -134,7 +134,8 @@ const setBasicCate = async () => {
     text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
   }
   .tracking-in-expand {
-    -webkit-animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+    -webkit-animation: tracking-in-expand 0.7s
+      cubic-bezier(0.215, 0.61, 0.355, 1) both;
     animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
   }
   @-webkit-keyframes tracking-in-expand {
