@@ -31,7 +31,7 @@ const code = ref<string>()
 let currentSub: IComment
 // 发表评论
 const handleComment = async (com?: IComment, sub?: IComment) => {
-  if(!username.value || !code.value) {
+  if (!username.value || !code.value) {
     return global.$message({
       message: '请先输入昵称和验证码哦！！',
       type: 'warning'
@@ -41,15 +41,15 @@ const handleComment = async (com?: IComment, sub?: IComment) => {
   const aid = (route.params.aid as string) || ''
   let comment: IComment
   if (!com && !sub) {
-    if(!content.value) {
+    if (!content.value) {
       return global.$message({
         message: '评论内容不能为空哦！！',
         type: 'warning'
       })
     }
     const validator = await verifyCaptcha()
-    if(!validator) return 
-    
+    if (!validator) return
+
     // 主评论
     comment = commentGenerator(aid, content.value, '', username.value)
     updateComment(comment)
@@ -57,17 +57,22 @@ const handleComment = async (com?: IComment, sub?: IComment) => {
     content.value = ''
     props.comment.unshift(comment)
   } else if (com && !sub) {
-    if(!replyContent.value) {
+    if (!replyContent.value) {
       return global.$message({
         message: '回复内容不能为空哦！！',
         type: 'warning'
       })
     }
     const validator = await verifyCaptcha()
-    if(!validator) return 
+    if (!validator) return
 
     // 子评论
-    comment = commentGenerator(aid, replyContent.value, com!.comid, username.value)
+    comment = commentGenerator(
+      aid,
+      replyContent.value,
+      com!.comid,
+      username.value
+    )
     updateComment(comment)
     comid.value = comment.comid
     replyContent.value = ''
@@ -75,17 +80,22 @@ const handleComment = async (com?: IComment, sub?: IComment) => {
     com.showSubComment = false
     flag1 = ''
   } else if (com && sub) {
-    if(!subReplyContent.value) {
+    if (!subReplyContent.value) {
       return global.$message({
         message: '回复内容不能为空哦！！',
         type: 'warning'
       })
     }
     const validator = await verifyCaptcha()
-    if(!validator) return 
+    if (!validator) return
 
     // 回复子评论
-    comment = commentGenerator(aid, subReplyContent.value, com!.comid, username.value)
+    comment = commentGenerator(
+      aid,
+      subReplyContent.value,
+      com!.comid,
+      username.value
+    )
     updateComment(comment)
     comid.value = comment.comid
     comment.to = currentSub
@@ -139,7 +149,7 @@ const updateComment = async (comment: IComment) => {
 
 const verifyCaptcha = async () => {
   try {
-    const {data} = await global.$http.post('/api/1.1/verifyCaptcha', {
+    const { data } = await global.$http.post('/api/1.1/verifyCaptcha', {
       captcha_code: code.value,
       captcha_token: captcha.value.captcha_token
     })
@@ -188,12 +198,12 @@ const handleChangeCode = () => {
 }
 
 const handleShowMoreComments = (e: Event) => {
-   const showMoreBtnEl = e.currentTarget as HTMLElement
-   const showMoreEl = showMoreBtnEl.parentElement
-   const CommentEl = showMoreEl!.parentElement
-   showMoreEl!.style.display = 'none'
-   CommentEl!.classList.add('show-more-none')
-   CommentEl!.style.overflow = 'visible'
+  const showMoreBtnEl = e.currentTarget as HTMLElement
+  const showMoreEl = showMoreBtnEl.parentElement
+  const CommentEl = showMoreEl!.parentElement
+  showMoreEl!.style.display = 'none'
+  CommentEl!.classList.add('show-more-none')
+  CommentEl!.style.overflow = 'visible'
 }
 
 // 格式化发布时间
@@ -208,7 +218,9 @@ const formatTimeAgo = (comments: IComment[]) => {
 }
 
 const getCodeUrl = async () => {
-  const {data} = await global.$http.get('/api/1.1/requestCaptcha?width=80&height=40')
+  const { data } = await global.$http.get(
+    '/api/1.1/requestCaptcha?width=80&height=40'
+  )
   captcha.value = data
 }
 
@@ -239,13 +251,25 @@ watch(
     </div>
     <div class="validate">
       <div class="user">
-        <input class="username-ipt" type="text" placeholder="nickname" maxlength="16" v-model="username">
+        <input
+          class="username-ipt"
+          type="text"
+          placeholder="nickname"
+          maxlength="16"
+          v-model="username"
+        />
       </div>
       <div class="code">
-        <input class="code-ipt" type="text" placeholder="验证码" maxlength="4" v-model="code">
+        <input
+          class="code-ipt"
+          type="text"
+          placeholder="验证码"
+          maxlength="4"
+          v-model="code"
+        />
       </div>
       <div class="captcha" @click="handleChangeCode">
-        <img :src="captcha.captcha_url" title="看不清？换一张">
+        <img :src="captcha.captcha_url" title="看不清？换一张" />
       </div>
     </div>
     <span class="hint">(请先输入昵称和验证码才能评论哦！！)</span>
@@ -287,18 +311,18 @@ watch(
         </div>
         <transition name="sub">
           <div class="subEditor" v-if="item.showSubComment">
-          <MdEditor
-            v-model="replyContent"
-            style="height: 150px"
-            placeholder="回复"
-            :toolbars="['=', 'preview']"
-          />
-          <div class="submit">
-            <button class="submit-button" @click="handleComment(item)">
-              回复
-            </button>
+            <MdEditor
+              v-model="replyContent"
+              style="height: 150px"
+              placeholder="回复"
+              :toolbars="['=', 'preview']"
+            />
+            <div class="submit">
+              <button class="submit-button" @click="handleComment(item)">
+                回复
+              </button>
+            </div>
           </div>
-        </div>
         </transition>
         <div
           class="sub-comments"
@@ -314,7 +338,7 @@ watch(
             <div class="sub-main">
               <div class="sub-user-box">
                 <div class="sub-user">
-                  <div class="sub-username">{{sub.userName}}</div>
+                  <div class="sub-username">{{ sub.userName }}</div>
                   <span class="reply-to" v-if="sub.to?.userName">
                     {{ '回复 ' + sub.to.userName }}
                   </span>
@@ -332,26 +356,29 @@ watch(
               </div>
               <transition name="sub">
                 <div class="subEditor" v-if="sub.showSubComment">
-                <MdEditor
-                  v-model="subReplyContent"
-                  style="height: 150px;"
-                  placeholder="回复"
-                  :toolbars="['=', 'preview']"
-                />
-                <div class="submit">
-                  <button
-                    class="submit-button"
-                    @click="handleComment(item, sub)"
-                  >
-                    回复
-                  </button>
+                  <MdEditor
+                    v-model="subReplyContent"
+                    style="height: 150px"
+                    placeholder="回复"
+                    :toolbars="['=', 'preview']"
+                  />
+                  <div class="submit">
+                    <button
+                      class="submit-button"
+                      @click="handleComment(item, sub)"
+                    >
+                      回复
+                    </button>
+                  </div>
                 </div>
-              </div>
               </transition>
             </div>
           </div>
         </div>
-        <div class="show-more" v-if="(item.subComments as Array<IComment>).length > 5">
+        <div
+          class="show-more"
+          v-if="(item.subComments as Array<IComment>).length > 5"
+        >
           <span class="show-more-button" @click="handleShowMoreComments">
             <span class="show-more-text">查看更多评论</span>
             <i class="iconfont icon-down"></i>
@@ -375,10 +402,12 @@ watch(
     position: sticky;
     top: 10px;
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     margin: 18px 10px 18px 0;
     z-index: 2;
     .user {
+      margin-bottom: 10px;
       .username-ipt {
         width: 160px;
         padding: 10px;
@@ -392,7 +421,7 @@ watch(
       }
     }
     .code {
-      margin-left: 10px;
+      margin: 0 10px 10px;
       .code-ipt {
         width: 80px;
         padding: 10px;
@@ -408,8 +437,8 @@ watch(
     .captcha {
       width: 80px;
       height: 40px;
+      margin-bottom: 10px;
       background-color: #f6f6f6;
-      margin-left: 10px;
       border-radius: 5px;
       overflow: hidden;
       cursor: pointer;
@@ -582,7 +611,7 @@ watch(
         height: 40px;
         color: #222;
         text-align: center;
-        background-image: linear-gradient(to top, #666 ,#fff);
+        background-image: linear-gradient(to top, #666, #fff);
         filter: opacity(0.5);
         .show-more-button {
           display: inline-flex;

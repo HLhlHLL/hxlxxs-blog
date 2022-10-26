@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { useElementStore } from './store/element'
 import { basicCategories } from '@/mock/categories'
@@ -11,10 +11,11 @@ import SiteOverview from '@/components/SiteOverview/index.vue'
 import TopBar from '@/components/TopBar/index.vue'
 import Music from '@/components/Music/index.vue'
 
-const global: any = inject('global')
 const elementStore = useElementStore()
 const headerRef = ref<HTMLElement | null>(null)
 const headerHeight = ref<number>(0)
+const titleFontSize = ref<number>(0)
+const buttonFontSize = ref<number>(0)
 const options = ref<any>(particles)
 
 const particlesInit = async (engine: any) => {
@@ -33,7 +34,13 @@ const getHeaderHeight = () => {
   }
 }
 
+const resizeText = () => {
+  titleFontSize.value = document.body.clientWidth * 0.03
+  buttonFontSize.value = document.body.clientWidth * 0.016
+}
+
 window.addEventListener('resize', getHeaderHeight)
+window.addEventListener('resize', resizeText)
 
 // 头部滚动
 const handleScrollHeader = () => {
@@ -54,9 +61,11 @@ onMounted(() => {
     opacity: 0.2
   })
 
+  resizeText()
+
   setTimeout(() => {
     getHeaderHeight()
-  }, 300)
+  })
 })
 
 // const setBasicCate = async () => {
@@ -77,11 +86,29 @@ onMounted(() => {
 
 <template>
   <div class="header" ref="headerRef">
-    <span class="header-title tracking-in-expand">Welcome to Hxlxx's blog</span>
+    <div
+      class="header-title"
+      :style="{
+        fontSize: titleFontSize + 'px'
+      }"
+    >
+      <span class="title-text">Welcome to Hxlxx's blog ~ ;-)</span>
+    </div>
     <img class="header-img" src="@/assets/images/header-backGround.jpg" />
     <div class="pulldown-button" @click="handleScrollHeader">
-      <span class="button-text">Let's go!</span>
-      <div class="iconfont icon-down"></div>
+      <span
+        class="button-text"
+        :style="{
+          fontSize: buttonFontSize + 'px'
+        }"
+        >Let's go!</span
+      >
+      <div
+        class="iconfont icon-down"
+        :style="{
+          fontSize: buttonFontSize + 'px'
+        }"
+      ></div>
     </div>
   </div>
   <div class="main">
@@ -124,42 +151,38 @@ onMounted(() => {
   z-index: 1;
   .header-title {
     position: absolute;
-    top: 50px;
-    right: 100px;
-    font-size: 40px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-weight: 600;
-    color: #fefefe;
-    transform: skew(-20deg);
-    transition: all 0.2s linear;
-    text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
-  }
-  .tracking-in-expand {
-    -webkit-animation: tracking-in-expand 0.7s
-      cubic-bezier(0.215, 0.61, 0.355, 1) both;
-    animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
-  }
-  @-webkit-keyframes tracking-in-expand {
-    0% {
-      letter-spacing: -0.5em;
-      opacity: 0;
-    }
-    40% {
-      opacity: 0.6;
-    }
-    100% {
-      opacity: 1;
+    text-align: center;
+    .title-text {
+      font-family: 'Hanalei Fill', cursive;
+      display: inline-block;
+      width: 0;
+      padding-right: 3px;
+      overflow: hidden;
+      white-space: nowrap;
+      color: #fefefe;
+      border-right: 5px solid #000;
+      text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
+      animation: blink 0.7s infinite normal, typing 3s steps(22) forwards;
     }
   }
-  @keyframes tracking-in-expand {
-    0% {
-      letter-spacing: -0.5em;
-      opacity: 0;
+  @keyframes typing {
+    from {
+      width: 0;
     }
-    40% {
-      opacity: 0.6;
+    to {
+      width: 100%;
     }
-    100% {
-      opacity: 1;
+  }
+  @keyframes blink {
+    from {
+      border-right-color: #000;
+    }
+    to {
+      border-right-color: #fff;
     }
   }
   .header-img {
@@ -173,17 +196,18 @@ onMounted(() => {
     bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 40px;
+    font-size: 30px;
     color: #ddd;
     cursor: pointer;
-    transition: all 0.2s linear;
+    transition: all 0.1s linear;
     .button-text {
+      font-family: 'Hanalei Fill', cursive;
       display: inline-block;
       transform: skew(-10deg);
       text-shadow: 2px 0 4px rgba($color: #000000, $alpha: 0.5);
     }
     .icon-down {
-      font-size: 40px;
+      font-size: 30px;
       width: 100%;
       text-align: center;
       transition: all 0.2s linear;
@@ -192,7 +216,6 @@ onMounted(() => {
   }
 }
 .main {
-  // min-width: 1300px;
   position: relative;
   z-index: 1;
   .main-inner {
@@ -233,18 +256,8 @@ onMounted(() => {
 
 @media screen and (max-width: 960px) {
   .header {
-    .header-title,
     .pulldown-button {
-      font-size: 20px;
-    }
-    .header-title {
-      top: 20px;
-      right: 40px;
-    }
-    .pulldown-button {
-      .icon-down {
-        font-size: 20px;
-      }
+      bottom: 20px;
     }
   }
   .main {
