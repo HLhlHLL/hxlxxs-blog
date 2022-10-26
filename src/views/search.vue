@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { IArticle } from '@/types'
-import { inject, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import { debounce } from 'lodash'
 import { useRouter } from 'vue-router'
+import Tag from '@/components/Tag/index.vue'
 
 const global: any = inject('global')
 const router = useRouter()
@@ -10,6 +11,7 @@ const router = useRouter()
 const showInput = ref<boolean>(false)
 const inputValue = ref<string>('')
 const searchList = ref<IArticle[]>([])
+const searchHistory = ref<string[]>([])
 
 const getSearchResults = async () => {
   const keyword = inputValue.value.trim()
@@ -32,6 +34,21 @@ const handleNavigateToArticle = (article: IArticle) => {
   })
 }
 
+const handleCleanInput = () => {
+  inputValue.value = ''
+  searchList.value = []
+}
+
+const handleCloseTag = (history: string) => {
+  searchHistory.value = searchHistory.value.filter((h) => h !== history)
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value))
+}
+
+const handleClickTag = (history: string) => {
+  inputValue.value = history
+  getSearchResults()
+}
+
 document.addEventListener('click', (e: Event) => {
   const target = e.target as HTMLElement
   if (
@@ -39,7 +56,20 @@ document.addEventListener('click', (e: Event) => {
     target.className !== 'result-item'
   ) {
     showInput.value = false
+    handleCleanInput()
   }
+  if (inputValue.value.trim()) {
+    if (!searchHistory.value.includes(inputValue.value)) {
+      searchHistory.value.push(inputValue.value.trim())
+      localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value))
+    }
+  }
+})
+
+onMounted(() => {
+  searchHistory.value = JSON.parse(
+    localStorage.getItem('searchHistory') || '[]'
+  )
 })
 </script>
 
@@ -64,7 +94,22 @@ document.addEventListener('click', (e: Event) => {
             v-model="inputValue"
             @input="handleSearching"
           />
-          <i class="iconfont icon-close" @click.stop="inputValue = ''"></i>
+          <i class="iconfont icon-close" @click.stop="handleCleanInput"></i>
+        </div>
+        <div class="history-box">
+          <div
+            class="search-history"
+            v-if="searchHistory.length > 0 && searchList.length === 0"
+          >
+            <span class="history-label">搜索历史：</span>
+            <Tag
+              v-for="history in searchHistory"
+              :key="history"
+              @handleCloseTag="handleCloseTag(history)"
+              @handleClickTag="handleClickTag(history)"
+              >{{ history }}</Tag
+            >
+          </div>
         </div>
         <ul class="results" v-if="searchList.length > 0">
           <li
@@ -129,9 +174,10 @@ document.addEventListener('click', (e: Event) => {
       .search-input {
         width: 80%;
         padding: 10px;
+        font-size: 16px;
         border: 1px solid #e6e6e6;
         border-radius: 5px;
-        font-size: 16px;
+        outline: none;
         box-sizing: border-box;
       }
       .icon-close {
@@ -152,6 +198,12 @@ document.addEventListener('click', (e: Event) => {
           background-color: #222;
           color: #fff;
         }
+      }
+    }
+    .history-box {
+      .search-history {
+        text-align: start;
+        margin-top: 20px;
       }
     }
     .results {

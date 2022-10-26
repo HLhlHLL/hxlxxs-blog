@@ -166,7 +166,7 @@ onMounted(() => {
       color: #fefefe;
       border-right: 5px solid #000;
       text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
-      animation: blink 0.7s infinite normal, typing 3s steps(22) forwards;
+      animation: blink 0.5s infinite normal, typing 2s steps(20) forwards;
     }
   }
   @keyframes typing {

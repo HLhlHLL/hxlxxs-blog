@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const emit = defineEmits(['handleCLoseTag'])
+const emit = defineEmits(['handleCloseTag', 'handleClickTag'])
 const close = ref<boolean>(false)
 const handleCloseTag = () => {
   close.value = true
-  emit('handleCLoseTag')
+  emit('handleCloseTag')
+}
+const handleClickTag = () => {
+  emit('handleClickTag')
 }
 </script>
 
 <template>
-  <span class="tag" v-if="!close">
+  <span class="tag" v-if="!close" @click.stop="handleClickTag">
     <span class="content">
       <slot></slot>
     </span>
-    <i class="iconfont icon-close" @click="handleCloseTag"></i>
+    <i class="iconfont icon-close" @click.stop="handleCloseTag"></i>
   </span>
 </template>
 

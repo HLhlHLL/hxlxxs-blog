@@ -71,8 +71,8 @@ const handleOpenOrCloseSelector = () => {
   }
 }
 
-const handleCloseTag = (tag: any) => {
-  tags.value = tags.value.filter((_tag) => _tag !== tag)
+const handleCloseTag = (tag: string) => {
+  tags.value = tags.value.filter((_tag) => _tag.tagName !== tag)
 }
 
 const handleSelectItem = (item: ITag) => {
@@ -129,7 +129,11 @@ defineExpose({
       <div class="selected">
         <div class="selected-value">
           <span class="hide">{{ iptValue || props.placeholder }}</span>
-          <input type="text" v-model.trim="iptValue" :placeholder="props.placeholder" />
+          <input
+            type="text"
+            v-model.trim="iptValue"
+            :placeholder="props.placeholder"
+          />
         </div>
         <div
           :class="['selector-button', fold ? '' : 'rotating']"
@@ -155,9 +159,12 @@ defineExpose({
     </div>
   </div>
   <ul class="tags">
-    <Tag v-for="tag in tags" :key="tag.tid" @handleCloseTag="handleCloseTag(tag)">
-      {{ tag.tagName }}
-    </Tag>
+    <Tag
+      v-for="tag in tags"
+      :key="tag.tid"
+      @handleCloseTag="handleCloseTag(tag.tagName)"
+      >{{ tag.tagName }}</Tag
+    >
   </ul>
 </template>
 
