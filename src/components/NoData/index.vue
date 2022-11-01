@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<PropsData>(), {
 </script>
 
 <template>
-  <div class="no-data">
+  <div class="no-data animate__animated animate__fadeIn">
     <span>{{ props.text }}</span>
   </div>
 </template>

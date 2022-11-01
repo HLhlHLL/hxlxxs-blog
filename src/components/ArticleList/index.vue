@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Directive, inject, watch, onMounted, reactive, ref } from 'vue'
+import { inject, watch, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IArticle } from '@/types'
-import { useUser } from '@/store/user'
 import Pagination from '@/components/Pagination/index.vue'
 import MessageBox from '../MessageBox/index.vue'
 import NoData from '@/components/NoData/index.vue'
@@ -15,7 +14,6 @@ type PropsData = {
 const route = useRoute()
 const router = useRouter()
 const siteInfoStore = useSiteInfoStore()
-const userStore = useUser()
 const props = defineProps<PropsData>()
 const global: any = inject('global')
 const currentYear = ref<number>(new Date().getFullYear())
@@ -37,13 +35,6 @@ const noData = ref<boolean>(false)
 
 const toRemoveArticle = ref<IArticle>()
 const showMessageBox = ref<boolean>(false)
-
-const vPermission: Directive = (el: HTMLElement) => {
-  const token = sessionStorage.getItem('sessionToken')
-  if (token !== userStore.sessionToken) {
-    el.remove()
-  }
-}
 
 const handleEditArticle = (article: IArticle) => {
   router.push({
@@ -322,7 +313,11 @@ watch(
       @handleConfirm="handleConfirm"
     />
     <NoData v-if="noData" text="没有更多文章哦，waiting..." />
-    <div class="more-action" v-if="noData">
+    <div
+      class="more-action"
+      v-if="noData && (detail.cid || detail.tid)"
+      v-permission
+    >
       是否要
       <span class="remove-button" @click="handleRemoveTagOrCategory">删除</span>
       当前{{ detail.cid ? '分类' : detail.tid ? '标签' : '' }}呢？
