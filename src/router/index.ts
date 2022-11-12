@@ -7,7 +7,7 @@ import { routes } from './routes'
 import hooks from './hooks'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/blog'),
   routes
 })
 

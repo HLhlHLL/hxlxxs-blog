@@ -27,7 +27,7 @@ body {
   "Microsoft YaHei"
   sans-serif;
   color: #555;
-  background-color: #f5f7f9;
+  background-color: #fff;
 }
 
 #app {
@@ -40,4 +40,16 @@ input::placeholder {
 
 .loading {
   background-color: #fafafa;
+}
+
+.emoji {
+  position: absolute;
+  transition: all 0.5s linear;
+  cursor: default;
+  opacity: 0.8;
+  font-size: 30px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  z-index: 99;
 }

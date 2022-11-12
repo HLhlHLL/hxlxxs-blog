@@ -2,27 +2,21 @@
 import { onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { useElementStore } from './store/element'
-import { basicCategories } from '@/mock/categories'
-import { loadFull } from 'tsparticles'
-import particles from '@/json/particles.json'
+// import { basicCategories } from '@/mock/categories'
 import Navigation from '@/components//Navigation/index.vue'
 import SecondaryNav from '@/components//SecondaryNav/index.vue'
 import SiteOverview from '@/components/SiteOverview/index.vue'
 import TopBar from '@/components/TopBar/index.vue'
-import Music from '@/components/Music/index.vue'
+import Particle from '@/components/Particle/index.vue'
+import Emoji from '@/plugin/emojiAnimation'
 
 const elementStore = useElementStore()
 const headerRef = ref<HTMLElement | null>(null)
 const headerHeight = ref<number>(0)
 const titleFontSize = ref<number>(0)
 const buttonFontSize = ref<number>(0)
-const options = ref<any>(particles)
-
-const particlesInit = async (engine: any) => {
-  await loadFull(engine)
-}
-
-const particlesLoaded = async (container: any) => {}
+const headerTitleRef = ref<HTMLElement | null>(null)
+const siteTitle = ref<string>("Welcome to Hxlxx's blog ~ ;-)")
 
 const getHeaderHeight = () => {
   if (headerRef.value) {
@@ -39,8 +33,20 @@ const resizeText = () => {
   buttonFontSize.value = document.body.clientWidth * 0.016
 }
 
+// 点击动画
+const handleEmojiAnimation = (e: MouseEvent) => {
+  let { pageX: x, pageY: y } = e
+  const dx = (Math.random() - 0.5) * 20
+  const dy = (Math.random() - 0.5) * 20
+  const duration = 5
+  const emoji = new Emoji(x, y, dx, dy, duration)
+
+  emoji.render()
+}
+
 window.addEventListener('resize', getHeaderHeight)
 window.addEventListener('resize', resizeText)
+document.addEventListener('mouseup', handleEmojiAnimation, true)
 
 // 头部滚动
 const handleScrollHeader = () => {
@@ -49,6 +55,22 @@ const handleScrollHeader = () => {
     left: 0,
     behavior: 'smooth'
   })
+}
+
+// 打字机效果
+const typing = () => {
+  const words = siteTitle.value
+    .split('')
+    .map((s) => `<li><span>${s}</span></li>`)
+  let timer = setInterval(() => {
+    if (headerTitleRef.value) {
+      if (words.length) {
+        headerTitleRef.value.innerHTML += words.shift()
+      } else {
+        clearInterval(timer)
+      }
+    }
+  }, 100)
 }
 
 onMounted(() => {
@@ -61,6 +83,7 @@ onMounted(() => {
     opacity: 0.2
   })
 
+  typing()
   resizeText()
 
   setTimeout(() => {
@@ -86,14 +109,13 @@ onMounted(() => {
 
 <template>
   <div class="header" ref="headerRef">
-    <div
+    <ul
       class="header-title"
+      ref="headerTitleRef"
       :style="{
         fontSize: titleFontSize + 'px'
       }"
-    >
-      <span class="title-text">Welcome to Hxlxx's blog ~ ;-)</span>
-    </div>
+    ></ul>
     <img class="header-img" src="@/assets/images/header-backGround.jpg" />
     <div class="pulldown-button" @click="handleScrollHeader">
       <span
@@ -130,14 +152,8 @@ onMounted(() => {
     </div>
   </div>
   <div class="footer"></div>
-  <Particles
-    id="tsparticles"
-    :particlesInit="particlesInit"
-    :particlesLoaded="particlesLoaded"
-    :options="options"
-  />
-  <Music />
   <TopBar />
+  <Particle />
 </template>
 
 <style scoped lang="scss">
@@ -154,35 +170,22 @@ onMounted(() => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    display: inline-flex;
     font-weight: 600;
-    text-align: center;
-    .title-text {
-      font-family: 'Hanalei Fill', cursive;
-      display: inline-block;
-      width: 0;
-      padding-right: 3px;
-      overflow: hidden;
-      white-space: nowrap;
-      color: #fefefe;
-      border-right: 5px solid #000;
-      text-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.8);
-      animation: blink 0.7s infinite normal, typing 2s steps(20) forwards;
-    }
-  }
-  @keyframes typing {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
+    white-space: pre;
+    list-style: none;
+    margin: 0;
+    padding: 0 5px;
+    color: #fff;
+    animation: blink 0.8s linear infinite;
+    font-family: 'Hanalei Fill', cursive;
   }
   @keyframes blink {
     from {
-      border-right-color: #000;
+      border-right: 4px solid #000;
     }
     to {
-      border-right-color: #fff;
+      border-right: 4px solid #fff;
     }
   }
   .header-img {
@@ -225,6 +228,10 @@ onMounted(() => {
     margin: 0 auto;
     .side-bar {
       width: 240px;
+      .nav,
+      .site-info {
+        box-shadow: 0 0 5px 5px rgba($color: #eee, $alpha: 0.3);
+      }
       .site-info {
         position: sticky;
         top: 10px;
@@ -241,6 +248,7 @@ onMounted(() => {
       padding: 30px;
       background-color: #fff;
       box-sizing: border-box;
+      box-shadow: 2px 0 5px 5px rgba($color: #eee, $alpha: 0.3);
     }
   }
 }
@@ -277,8 +285,14 @@ onMounted(() => {
       }
     }
   }
-  .music {
-    display: none;
+
+  @keyframes blink {
+    from {
+      border-right: 2px solid #000;
+    }
+    to {
+      border-right: 2px solid #fff;
+    }
   }
 }
 </style>

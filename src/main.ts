@@ -9,9 +9,7 @@ import http from '@/utils/request'
 import message from '@/components/Message/index'
 import cusPlugin from '@/plugin/index'
 import pinia from './store'
-import Particles from 'vue3-particles'
 import initDirectives from './directives'
-import { useUser } from './store/user'
 
 const app = createApp(App)
 
@@ -22,7 +20,6 @@ app.provide('global', {
 app.use(cusPlugin)
 app.use(router)
 app.use(pinia)
-app.use(Particles)
 
 initDirectives(app)
 app.mount('#app')
