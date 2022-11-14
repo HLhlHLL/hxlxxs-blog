@@ -229,7 +229,8 @@ onMounted(() => {
     .side-bar {
       width: 240px;
       .nav,
-      .site-info {
+      .site-info,
+      .calendar-box {
         box-shadow: 0 0 5px 5px rgba($color: #eee, $alpha: 0.3);
       }
       .site-info {

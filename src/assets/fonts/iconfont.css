@@ -1,9 +1,9 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 3679960 */
-  src: url('//at.alicdn.com/t/c/font_3679960_g8j81uod5k9.woff2?t=1665552783847') format('woff2'),
-    url('//at.alicdn.com/t/c/font_3679960_g8j81uod5k9.woff?t=1665552783847') format('woff'),
-    url('//at.alicdn.com/t/c/font_3679960_g8j81uod5k9.ttf?t=1665552783847') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_3679960_a14z1fzj9yu.woff2?t=1668424584919') format('woff2'),
+    url('//at.alicdn.com/t/c/font_3679960_a14z1fzj9yu.woff?t=1668424584919') format('woff'),
+    url('//at.alicdn.com/t/c/font_3679960_a14z1fzj9yu.ttf?t=1668424584919') format('truetype');
 }
 
 .iconfont {
@@ -12,6 +12,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-double-left:before {
+  content: "\e60e";
 }
 
 .icon-log-out:before {

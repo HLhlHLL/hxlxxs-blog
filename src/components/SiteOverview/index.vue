@@ -4,8 +4,9 @@ import { useRouter } from 'vue-router'
 import { useUser } from '@/store/user'
 import { useSiteInfoStore } from '@/store/siteinfo'
 import { Path, pathList as data } from './path'
-import gsap from 'gsap'
 import { useElementStore } from '@/store/element'
+import Calendar from '@/components/Calendar/index.vue'
+import gsap from 'gsap'
 
 const global: any = inject('global')
 const router = useRouter()
@@ -183,6 +184,9 @@ watch(
         </div>
       </div>
     </div>
+    <div class="calendar-box">
+      <Calendar />
+    </div>
   </div>
 </template>
 
@@ -335,6 +339,21 @@ watch(
         cursor: pointer;
         background-color: $bg-color;
       }
+    }
+  }
+  .calendar-box {
+    &::before {
+      display: block;
+      content: '';
+      width: 100%;
+      height: 5px;
+      background: repeating-linear-gradient(
+        -45deg,
+        #999,
+        #999 4px,
+        transparent 4px,
+        transparent 8px
+      );
     }
   }
 }
