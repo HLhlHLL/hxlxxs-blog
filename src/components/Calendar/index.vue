@@ -4,14 +4,19 @@ import { getAllDate, IDateItem } from './useDate/index'
 
 const _date = new Date()
 const currentDate = reactive({
-  year: _date.getFullYear(),
-  month: _date.getMonth() + 1,
-  date: _date.getDate(),
+  year: 0,
+  month: 0,
+  date: 0,
   toDateString() {
     return `${this.year}-${this.month}-${this.date}`
   },
   getDate() {
     return new Date(this.year, this.month - 1, this.date)
+  },
+  initDate() {
+    this.year = _date.getFullYear()
+    this.month = _date.getMonth() + 1
+    this.date = _date.getDate()
   }
 })
 const allDate = ref<Array<Array<IDateItem>>>([])
@@ -64,11 +69,17 @@ const handleSelectCurrentDate = (_date: IDateItem) => {
   }
 }
 
+const handleToToday = () => {
+  currentDate.initDate()
+  initDate(_date)
+}
+
 const initDate = (date: Date) => {
   allDate.value = getAllDate(date)
 }
 
 onBeforeMount(() => {
+  currentDate.initDate()
   initDate(_date)
 })
 </script>
@@ -124,13 +135,16 @@ onBeforeMount(() => {
           </tr>
         </tbody>
       </table>
+      <div class="calendar-footer">
+        <button class="today-btn" @click="handleToToday">today</button>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .calendar {
-  padding: 15px 0 20px;
+  padding: 15px 0 15px;
   background-color: #fff;
   .calendar-header {
     display: flex;
@@ -181,6 +195,21 @@ onBeforeMount(() => {
         color: #fff;
       }
       .active {
+        background-color: #222;
+        color: #fff;
+      }
+    }
+  }
+  .calendar-footer {
+    text-align: end;
+    padding: 0 10px;
+    .today-btn {
+      background-color: #fff;
+      border: 2px solid #222;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s linear;
+      &:hover {
         background-color: #222;
         color: #fff;
       }

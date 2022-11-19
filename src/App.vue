@@ -9,6 +9,7 @@ import SiteOverview from '@/components/SiteOverview/index.vue'
 import TopBar from '@/components/TopBar/index.vue'
 import Particle from '@/components/Particle/index.vue'
 import Emoji from '@/plugin/emojiAnimation'
+import Footer from '@/components/Footer/index.vue'
 
 const elementStore = useElementStore()
 const headerRef = ref<HTMLElement | null>(null)
@@ -116,7 +117,13 @@ onMounted(() => {
         fontSize: titleFontSize + 'px'
       }"
     ></ul>
-    <img class="header-img" src="@/assets/images/header-backGround.jpg" />
+    <div class="header-img">
+      <img
+        class="bg-img"
+        src="@/assets/images/header-backGround.jpg"
+        v-rotation
+      />
+    </div>
     <div class="pulldown-button" @click="handleScrollHeader">
       <span
         class="button-text"
@@ -151,7 +158,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <div class="footer"></div>
+  <Footer />
   <TopBar />
   <Particle />
 </template>
@@ -175,10 +182,13 @@ onMounted(() => {
     white-space: pre;
     list-style: none;
     margin: 0;
-    padding: 0 5px;
+    padding: 0 10px;
     color: #fff;
     animation: blink 0.8s linear infinite;
     font-family: 'Hanalei Fill', cursive;
+    text-shadow: 5px 5px 0 #222;
+    z-index: 2;
+    pointer-events: none;
   }
   @keyframes blink {
     from {
@@ -189,10 +199,15 @@ onMounted(() => {
     }
   }
   .header-img {
-    display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    overflow: hidden;
+    .bg-img {
+      width: 100%;
+      height: 100%;
+      transition: all 0.2s linear;
+      object-fit: cover;
+    }
   }
   .pulldown-button {
     position: absolute;
@@ -207,14 +222,14 @@ onMounted(() => {
       font-family: 'Hanalei Fill', cursive;
       display: inline-block;
       transform: skew(-10deg);
-      text-shadow: 2px 0 4px rgba($color: #000000, $alpha: 0.5);
+      text-shadow: 2px 2px 0 #222;
     }
     .icon-down {
       font-size: 30px;
       width: 100%;
       text-align: center;
       transition: all 0.2s linear;
-      text-shadow: 0 2px 2px rgba($color: #000000, $alpha: 0.8);
+      text-shadow: 2px 2px 0 #222;
     }
   }
 }
@@ -252,9 +267,6 @@ onMounted(() => {
       box-shadow: 2px 0 5px 5px rgba($color: #eee, $alpha: 0.3);
     }
   }
-}
-.footer {
-  height: 400px;
 }
 
 @media screen and (min-width: 1280px) {

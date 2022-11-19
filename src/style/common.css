@@ -53,3 +53,13 @@ input::placeholder {
   -moz-user-select: none;
   z-index: 99;
 }
+
+@keyframes bounce {
+  0% {
+    transform: translateY(5px);
+  }
+
+  100% {
+    transform: translateY(-5px) scale(1.3);
+  }
+}

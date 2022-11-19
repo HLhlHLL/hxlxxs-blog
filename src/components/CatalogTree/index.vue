@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<PropsData>(), {
 })
 
 const handleNavigateToArticleList = (category: ICategory) => {
+  if(props.sub === 0) return
   router.push({
     name: 'category_articles',
     params: {
