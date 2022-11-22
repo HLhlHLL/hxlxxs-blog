@@ -1,78 +1,318 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref, inject, watch } from 'vue'
-import { IArticle } from '@/types'
-import { useSiteInfoStore } from '@/store/siteinfo'
-import Pagination from '@/components/Pagination/index.vue'
-import Article from '@/components/Article/index.vue'
-import NoData from '@/components/NoData/index.vue'
+import { onMounted, ref } from 'vue'
+import { gsap } from 'gsap'
+import { useElementStore } from '@/store/element'
+// import { basicCategories } from '@/mock/categories'
+import Navigation from '@/components//Navigation/index.vue'
+import SecondaryNav from '@/components//SecondaryNav/index.vue'
+import SiteOverview from '@/components/SiteOverview/index.vue'
+import TopBar from '@/components/TopBar/index.vue'
+import Particle from '@/components/Particle/index.vue'
+import Emoji from '@/plugin/emojiAnimation'
+import Footer from '@/components/Footer/index.vue'
 
-const global: any = inject('global')
-const articleList = ref<IArticle[]>([])
-const pagination = reactive({
-  total: 0,
-  size: 5,
-  range: 3,
-  currentPage: 1
-})
-const loading = ref<boolean>(true)
-const siteInfoStore = useSiteInfoStore()
-const noData = ref<boolean>(false)
+const elementStore = useElementStore()
+const headerRef = ref<HTMLElement | null>(null)
+const headerHeight = ref<number>(0)
+const titleFontSize = ref<number>(0)
+const buttonFontSize = ref<number>(0)
+const headerTitleRef = ref<HTMLElement | null>(null)
+const siteTitle = ref<string>("Hxlxx's blog ~ ;-)")
 
-const handleGetCurrentPage = (page: number) => {
-  pagination.currentPage = page
-  getArticleList()
-}
-
-const getArticleList = async () => {
-  const skip =
-    pagination.currentPage > 1
-      ? (pagination.currentPage - 1) * pagination.size
-      : 0
-  const { data: data1 } = await global.$http.get(
-    `/api/1.1/classes/articles?&order=-createdAt&limit=${pagination.size}&skip=${skip}`
-  )
-  articleList.value = data1.results
-  const { data: data2 } = await global.$http.get(
-    '/api/1.1/classes/articles?limit=0&count=1'
-  )
-  pagination.total = data2.count
-  loading.value = false
-}
-
-onBeforeMount(() => {
-  getArticleList()
-  pagination.total = siteInfoStore.archivesCount
-})
-
-watch(
-  () => articleList,
-  (newValue) => {
-    newValue.value.length === 0 ? (noData.value = true) : (noData.value = false)
-  },
-  {
-    deep: true
+const getHeaderHeight = () => {
+  if (headerRef.value) {
+    const { height } = headerRef.value.getBoundingClientRect()
+    if (height) {
+      headerHeight.value = height
+      elementStore.offsetTop = height
+    }
   }
-)
+}
+
+const resizeText = () => {
+  titleFontSize.value =
+    document.body.clientWidth * 0.036 < 24
+      ? 24
+      : document.body.clientWidth * 0.036
+  buttonFontSize.value =
+    document.body.clientWidth * 0.016 < 16
+      ? 16
+      : document.body.clientWidth * 0.016
+}
+
+// 点击动画
+const handleEmojiAnimation = (e: MouseEvent) => {
+  let { pageX: x, pageY: y } = e
+  const dx = (Math.random() - 0.5) * 20
+  const dy = (Math.random() - 0.5) * 20
+  const duration = 5
+  const emoji = new Emoji(x, y, dx, dy, duration)
+
+  emoji.render()
+}
+
+window.addEventListener('resize', getHeaderHeight)
+window.addEventListener('resize', resizeText)
+document.addEventListener('mouseup', handleEmojiAnimation, true)
+
+// 头部滚动
+const handleScrollHeader = () => {
+  window.scrollTo({
+    top: headerHeight.value,
+    left: 0,
+    behavior: 'smooth'
+  })
+}
+
+// 打字机效果
+const typing = () => {
+  const words = siteTitle.value
+    .split('')
+    .map((s) => `<li><span>${s}</span></li>`)
+  let timer = setInterval(() => {
+    if (headerTitleRef.value) {
+      if (words.length) {
+        headerTitleRef.value.innerHTML += words.shift()
+      } else {
+        clearInterval(timer)
+      }
+    }
+  }, 100)
+}
+
+onMounted(() => {
+  gsap.to('.icon-down', {
+    y: 15,
+    ease: 'power1.in',
+    repeat: Infinity,
+    yoyo: true,
+    duration: 0.8,
+    opacity: 0.2
+  })
+
+  typing()
+  resizeText()
+
+  setTimeout(() => {
+    getHeaderHeight()
+  })
+})
+
+// const setBasicCate = async () => {
+//   const res = await global.$http.post('/api/1.1/batch', {
+//     requests: basicCategories.map((c) => {
+//       return {
+//         method: 'POST',
+//         path: '/1.1/classes/categories',
+//         body: {
+//           ...c
+//         }
+//       }
+//     })
+//   })
+//   console.log(res)
+// }
 </script>
 
 <template>
-  <div class="article-list animate__animated animate__fadeIn">
-    <Article
-      overview
-      v-for="(article, index) in articleList"
-      :loading="loading"
-      :article="article"
-      :key="article.aid"
-      :index="index"
-    />
-    <NoData v-if="noData" text="这个人很懒，还什么都没写哦。。。" />
-    <Pagination
-      button-color="#222"
-      v-if="pagination.total > 5"
-      :pagination="pagination"
-      @get-current-page="handleGetCurrentPage"
-    />
+  <div class="header" ref="headerRef">
+    <ul
+      class="header-title"
+      ref="headerTitleRef"
+      :style="{
+        fontSize: titleFontSize + 'px'
+      }"
+    ></ul>
+    <div class="header-img">
+      <img
+        class="bg-img"
+        src="@/assets/images/header-backGround.jpg"
+        v-rotation
+      />
+    </div>
+    <div class="pulldown-button" @click="handleScrollHeader">
+      <span
+        class="button-text"
+        :style="{
+          fontSize: buttonFontSize + 'px'
+        }"
+        >Let's go!</span
+      >
+      <div
+        class="iconfont icon-down"
+        :style="{
+          fontSize: buttonFontSize + 'px'
+        }"
+      ></div>
+    </div>
   </div>
+  <div class="main">
+    <div class="main-inner">
+      <div class="side-bar">
+        <div class="nav">
+          <Navigation />
+        </div>
+        <div class="site-info">
+          <SiteOverview />
+        </div>
+      </div>
+      <div class="secondary-nav-bar">
+        <SecondaryNav />
+      </div>
+      <div class="content">
+        <router-view> </router-view>
+      </div>
+    </div>
+  </div>
+  <Footer />
+  <TopBar />
+  <Particle />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.header {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f5f7f9;
+  z-index: 1;
+  .header-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    font-weight: 600;
+    white-space: pre;
+    list-style: none;
+    margin: 0;
+    padding: 0 10px;
+    color: #fff;
+    animation: blink 0.8s linear infinite;
+    font-family: 'Hanalei Fill', cursive;
+    text-shadow: 5px 5px 0 #222;
+    z-index: 2;
+    pointer-events: none;
+  }
+  @keyframes blink {
+    from {
+      border-right: 4px solid #000;
+    }
+    to {
+      border-right: 4px solid #fff;
+    }
+  }
+  .header-img {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    .bg-img {
+      width: 100%;
+      height: 100%;
+      transition: all 0.2s linear;
+      object-fit: cover;
+    }
+  }
+  .pulldown-button {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.1s linear;
+    .button-text {
+      font-family: 'Hanalei Fill', cursive;
+      display: inline-block;
+      transform: skew(-10deg);
+      text-shadow: 2px 2px 0 #222;
+    }
+    .icon-down {
+      font-size: 30px;
+      width: 100%;
+      text-align: center;
+      transition: all 0.2s linear;
+      text-shadow: 2px 2px 0 #222;
+    }
+  }
+}
+.main {
+  position: relative;
+  z-index: 1;
+  .main-inner {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 0 auto;
+    .side-bar {
+      width: 240px;
+      .nav,
+      .site-info,
+      .calendar-box {
+        box-shadow: 0 0 5px 5px rgba($color: #eee, $alpha: 0.3);
+      }
+      .site-info {
+        position: sticky;
+        top: 10px;
+      }
+    }
+    .secondary-nav-bar {
+      display: none;
+      background-color: #222;
+    }
+
+    .content {
+      width: calc(100% - 250px);
+      min-width: 300px;
+      padding: 30px;
+      background-color: #fff;
+      box-sizing: border-box;
+      box-shadow: 2px 0 5px 5px rgba($color: #eee, $alpha: 0.3);
+    }
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  // .header {
+  //   height: 100vh;
+  // }
+}
+
+@media screen and (max-width: 960px) {
+  .header {
+    min-width: 375px;
+    .pulldown-button {
+      bottom: 20px;
+    }
+  }
+  .main {
+    min-width: 375px;
+    .main-inner {
+      flex-direction: column;
+      width: 100%;
+      margin: 0;
+      .side-bar {
+        display: none;
+      }
+      .secondary-nav-bar {
+        display: block;
+      }
+      .content {
+        width: 100%;
+      }
+    }
+  }
+
+  @keyframes blink {
+    from {
+      border-right: 2px solid #000;
+    }
+    to {
+      border-right: 2px solid #fff;
+    }
+  }
+}
+</style>

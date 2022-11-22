@@ -561,6 +561,8 @@ watch(
           }
           .sub-main {
             margin-left: 15px;
+            // 解决 flex 子元素超出父元素的问题
+            min-width: 0;
             flex: 1;
             .sub-user-box {
               display: flex;

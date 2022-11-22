@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import MDEditor from 'md-editor-v3'
 import { IArticle, ICategory, IContentArticle } from '@/types/index'
+import { HeadList } from 'md-editor-v3'
 
 type PropsData = {
   article: IContentArticle | IArticle
@@ -10,6 +11,7 @@ type PropsData = {
   loading?: boolean
 }
 const router = useRouter()
+const emits = defineEmits(['getCatalog'])
 const props = withDefaults(defineProps<PropsData>(), {
   overview: false
 })
@@ -32,6 +34,10 @@ const handleNavigateToArticleList = (category: ICategory) => {
       cid: category.cid
     }
   })
+}
+
+const handleGetCatalog = (list: HeadList[]) => {
+  emits('getCatalog', list)
 }
 </script>
 
@@ -126,6 +132,7 @@ const handleNavigateToArticleList = (category: ICategory) => {
           v-model="(article as IContentArticle).content"
           preview-only
           style="font-size: 18px"
+          @onGetCatalog="handleGetCatalog"
         />
       </div>
     </template>

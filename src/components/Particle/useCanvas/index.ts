@@ -103,15 +103,20 @@ const initParticle = (cvsEl: HTMLCanvasElement) => {
 //   mouse.x = -999
 //   mouse.y = -999
 // })
+let requestId: number
 export default (cvsEl: HTMLCanvasElement) => {
   const ctx = cvsEl.getContext('2d') as CanvasRenderingContext2D
+  ctx.clearRect(0, 0, cvsEl.width, cvsEl.height)
+  initParticle(cvsEl)
+  if (requestId) {
+    cancelAnimationFrame(requestId)
+  }
   const render = () => {
-    requestAnimationFrame(render)
+    requestId = requestAnimationFrame(render)
     ctx.clearRect(0, 0, cvsEl.width, cvsEl.height)
     for (const particle of particleArray) {
       particle.update()
     }
   }
-  initParticle(cvsEl)
   render()
 }

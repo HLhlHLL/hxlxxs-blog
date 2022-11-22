@@ -7,6 +7,9 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 onMounted(() => {
   if (canvasRef.value) {
     useCanvas(canvasRef.value)
+    window.addEventListener('resize', () => {
+      useCanvas(canvasRef.value as HTMLCanvasElement)
+    })
   }
 })
 </script>
